@@ -14,6 +14,7 @@ final class MainFlowUITests: XCTestCase {
     func testOnboardingAccountAndFirstExpense() {
         shot("01-onboarding")
         app.buttons["Skip"].tap()
+        sleep(1) // let the page transition settle before capturing
         shot("02-onboarding-notifications")
         app.buttons["Continue without notifications"].tap()
 

@@ -89,8 +89,11 @@ struct AccountScopedHomeView: View {
                         PillPicker(options: FilterPeriod.allCases, selection: Bindable(account).filterPeriod) { $0.shortTitle }
                         HeroCard(period: period, total: total, count: filtered.count, currency: defaultCurrency, expenses: filtered)
                             .staggeredAppear(1)
-                        InsightsCard(expenses: filtered, period: period, currency: defaultCurrency, iconForCategory: iconForCategory)
-                            .staggeredAppear(2)
+                        // Hidden when empty: the empty state below already says there's nothing yet.
+                        if !filtered.isEmpty {
+                            InsightsCard(expenses: filtered, period: period, currency: defaultCurrency, iconForCategory: iconForCategory)
+                                .staggeredAppear(2)
+                        }
                         if !categories.isEmpty || !payments.isEmpty {
                             FilterBar(account: account, categories: categories.map(\.name), payments: payments.map(\.name))
                                 .staggeredAppear(3)
