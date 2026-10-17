@@ -189,7 +189,7 @@ struct SyncToast: View {
             case .success(let m):
                 label(Text(m), icon: AnyView(Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)))
             case .failed(let m):
-                label(Text(m).lineLimit(2), icon: AnyView(Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)))
+                label(Text(m), icon: AnyView(Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)))
             }
         }
         .animation(.spring, value: status)
@@ -198,7 +198,7 @@ struct SyncToast: View {
     private func label(_ text: Text, icon: AnyView) -> some View {
         HStack(spacing: 8) {
             icon
-            text.font(.footnote.weight(.medium))
+            text.font(.footnote.weight(.medium)).lineLimit(2)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
