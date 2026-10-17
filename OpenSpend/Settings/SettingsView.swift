@@ -120,10 +120,10 @@ struct SettingsView: View {
             VStack(spacing: 8) {
                 Image(systemName: "tablecells.badge.ellipsis")
                     .font(.system(size: 40, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Palette.primary)
                     .frame(width: 80, height: 80)
-                    .background(LinearGradient(colors: [Palette.heroStart, Palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing), in: .rect(cornerRadius: Radius.lg))
-                    .shadow(color: Palette.heroEnd.opacity(0.3), radius: 14, y: 8)
+                    .background(Palette.surface, in: .rect(cornerRadius: Radius.lg))
+                    .overlay(RoundedRectangle(cornerRadius: Radius.lg).strokeBorder(Palette.border, lineWidth: 1))
                     .accessibilityLabel("OpenSpend")
                     .onTapGesture {
                         logoTaps += 1

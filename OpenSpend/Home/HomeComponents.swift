@@ -2,7 +2,7 @@ import Charts
 import SwiftData
 import SwiftUI
 
-/// Gradient hero with the period total. Fixed deep colors keep white text above 7:1.
+/// Period total, set as plain type on the background.
 struct HeroCard: View {
     var period: FilterPeriod
     var total: Double
@@ -27,44 +27,31 @@ struct HeroCard: View {
             let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: Space.sm)) : AnyLayout(HStackLayout())
             layout {
                 Text(period.spentTitle)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.85))
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Palette.textMuted)
                 if !typeSize.isAccessibilitySize { Spacer() }
                 Text("\(count) \(count == 1 ? "expense" : "expenses")")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, Space.sm)
-                    .padding(.vertical, Space.xs)
-                    .background(.white.opacity(0.18), in: .capsule)
+                    .font(.caption.weight(.medium).monospacedDigit())
+                    .foregroundStyle(Palette.textMuted)
             }
 
             Text(Money.format(total, currency: currency))
-                .font(.system(size: amountSize, weight: .bold, design: .rounded).monospacedDigit())
-                .foregroundStyle(.white)
+                .font(.system(size: amountSize, weight: .semibold).monospacedDigit())
+                .tracking(-1)
+                .foregroundStyle(Palette.primary)
                 .contentTransition(.numericText(value: total))
                 .animation(Motion.select, value: total)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
 
             if period != .today {
-                Label("\(Money.format(dailyAverage, currency: currency)) per day on average", systemImage: "chart.line.uptrend.xyaxis")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.85))
+                Text("\(Money.format(dailyAverage, currency: currency)) per day on average")
+                    .font(.footnote.monospacedDigit())
+                    .foregroundStyle(Palette.textMuted)
             }
         }
-        .padding(Space.xl)
+        .padding(.vertical, Space.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            ZStack {
-                LinearGradient(colors: [Palette.heroStart, Palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing)
-                Circle().fill(.white.opacity(0.10)).frame(width: 220).offset(x: 150, y: -90)
-                Circle().fill(.white.opacity(0.06)).frame(width: 160).offset(x: 90, y: 80)
-            }
-            .accessibilityHidden(true)
-        }
-        .clipShape(.rect(cornerRadius: Radius.xl))
-        .overlay(RoundedRectangle(cornerRadius: Radius.xl).strokeBorder(.white.opacity(0.18), lineWidth: 0.5))
-        .shadow(color: Palette.heroEnd.opacity(0.3), radius: 18, y: 10)
         .accessibilityElement(children: .combine)
     }
 }
@@ -96,8 +83,8 @@ struct InsightsCard: View {
                 let sum = max(breakdown.reduce(0) { $0 + $1.total }, 0.0001)
                 GeometryReader { geo in
                     HStack(spacing: 2) {
-                        ForEach(breakdown, id: \.name) { item in
-                            Palette.tint(for: item.name)
+                        ForEach(Array(breakdown.enumerated()), id: \.element.name) { i, item in
+                            Palette.ramp[min(i, Palette.ramp.count - 1)]
                                 .frame(width: max(4, geo.size.width * item.total / sum - 2))
                         }
                     }
@@ -107,9 +94,12 @@ struct InsightsCard: View {
                 .accessibilityHidden(true)
 
                 VStack(spacing: Space.md) {
-                    ForEach(breakdown, id: \.name) { item in
+                    ForEach(Array(breakdown.enumerated()), id: \.element.name) { i, item in
                         HStack(spacing: Space.md) {
-                            IconBadge(systemName: iconForCategory[item.name] ?? "tag", tint: Palette.tint(for: item.name), size: 32)
+                            // Swatch ties the row to its bar segment; the name carries the meaning.
+                            RoundedRectangle(cornerRadius: 2).fill(Palette.ramp[min(i, Palette.ramp.count - 1)])
+                                .frame(width: 10, height: 10)
+                                .accessibilityHidden(true)
                             Text(item.name).font(.subheadline.weight(.medium)).lineLimit(1)
                             Spacer()
                             Text((item.total / sum).formatted(.percent.precision(.fractionLength(0))))
@@ -155,8 +145,8 @@ struct ExpenseGraphView: View {
         } else {
             Chart(buckets, id: \.date) { b in
                 BarMark(x: .value("Date", b.date, unit: unit), y: .value("Spent", b.total))
-                    .foregroundStyle(LinearGradient(colors: [Palette.primary, Palette.heroEnd], startPoint: .top, endPoint: .bottom))
-                    .cornerRadius(6)
+                    .foregroundStyle(Palette.primary)
+                    .cornerRadius(2)
             }
             .accessibilityLabel("Spending trend chart")
             .chartXScale(domain: domain)
@@ -215,7 +205,7 @@ struct FilterBar: View {
                 } label: {
                     Label(isFiltering ? "Filtered" : "Filter", systemImage: "line.3.horizontal.decrease")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isFiltering ? Color.white : Color.primary)
+                        .foregroundStyle(isFiltering ? Palette.onPrimary : Palette.primary)
                         .padding(.horizontal, 14)
                         .frame(minHeight: 40)
                         .background(isFiltering ? Palette.primary : Palette.surface, in: .capsule)
@@ -270,8 +260,7 @@ struct ExpenseRow: View {
                 if !stacked { Spacer(minLength: Space.sm) }
                 VStack(alignment: stacked ? .leading : .trailing, spacing: 3) {
                     Text(Money.format(expense.amount, currency: expense.currency))
-                        .font(.body.weight(.bold).monospacedDigit())
-                        .fontDesign(.rounded)
+                        .font(.body.weight(.medium).monospacedDigit())
                         .fixedSize()
                     HStack(spacing: Space.xs) {
                         if expense.syncState != .synced {

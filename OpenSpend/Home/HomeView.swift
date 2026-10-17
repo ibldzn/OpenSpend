@@ -180,7 +180,7 @@ struct AccountScopedHomeView: View {
     private var connectBanner: some View {
         Button { showSheetSetup = true } label: {
             HStack(spacing: Space.md) {
-                IconBadge(systemName: "tablecells", tint: Palette.success, size: 44)
+                IconBadge(systemName: "tablecells", size: 44)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Action required").font(.subheadline.weight(.semibold))
                     Text("Choose a spreadsheet to start syncing.").font(.footnote).foregroundStyle(Palette.textMuted)
@@ -197,17 +197,18 @@ struct AccountScopedHomeView: View {
         Button(action: startCreate) {
             Label("Add Expense", systemImage: "plus")
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(Palette.onPrimary)
                 .padding(.horizontal, Space.xl)
-                .frame(minHeight: 56)
+                .frame(minHeight: 52)
                 .background(Palette.cta, in: .capsule)
-                .shadow(color: Palette.cta.opacity(0.35), radius: 16, y: 8)
+                // Separates the button from content scrolling underneath, without a glow.
+                .overlay(Capsule().strokeBorder(Palette.background, lineWidth: 4).padding(-4))
         }
         .buttonStyle(ScaleOnPressStyle())
         .padding(.bottom, Space.sm)
     }
 
-    /// Glass top bar: search, account switcher, settings.
+    /// Top bar: search, account switcher, settings.
     private var header: some View {
         HStack(spacing: Space.md) {
             CircleIconButton(systemName: "magnifyingglass", label: "Search") { showSearch = true }
@@ -226,7 +227,7 @@ struct AccountScopedHomeView: View {
                 HStack(spacing: Space.sm) {
                     Image(systemName: account.iconName)
                         .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.onPrimary)
                         .frame(width: 28, height: 28)
                         .background(Palette.primary, in: .circle)
                     Text(account.name).font(.headline).lineLimit(1)
@@ -235,9 +236,9 @@ struct AccountScopedHomeView: View {
                 .padding(.leading, Space.sm)
                 .padding(.trailing, Space.md)
                 .frame(minHeight: 44)
-                .background(.regularMaterial, in: .capsule)
-                .overlay(Capsule().strokeBorder(Palette.border.opacity(0.6), lineWidth: 0.5))
-                .foregroundStyle(.primary)
+                .background(Palette.surface, in: .capsule)
+                .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1))
+                .foregroundStyle(Palette.primary)
                 .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
             .accessibilityLabel("Account: \(account.name)")
@@ -248,7 +249,8 @@ struct AccountScopedHomeView: View {
         .padding(.horizontal, Space.lg)
         .padding(.vertical, Space.sm)
         // Solid enough that scrolled content never collides with the status bar.
-        .background(.bar)
+        .background(Palette.background)
+        .overlay(alignment: .bottom) { Rectangle().fill(Palette.border).frame(height: 1) }
     }
 }
 

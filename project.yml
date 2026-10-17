@@ -52,6 +52,7 @@ targets:
         CFBundleDisplayName: OpenSpend
         LSApplicationCategoryType: public.app-category.finance
         UILaunchScreen: {}
+        UIUserInterfaceStyle: Dark
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         AppGroupID: $(APP_GROUP)
         GoogleClientID: $(GOOGLE_CLIENT_ID)

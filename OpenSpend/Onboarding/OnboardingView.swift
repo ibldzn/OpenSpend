@@ -38,22 +38,22 @@ struct OnboardingView: View {
                 }
             }
         case .sync:
-            OnboardingPage(icon: "arrow.triangle.2.circlepath", tint: Palette.success, title: "Lives in Google Sheets",
+            OnboardingPage(icon: "arrow.triangle.2.circlepath", tint: Palette.primary, title: "Lives in Google Sheets",
                            message: "Connect a spreadsheet and every expense becomes a row. Edit the sheet and the app follows. Prefer to stay offline? Use a local account.") {
                 EmptyView()
             }
         case .shortcuts:
-            OnboardingPage(icon: "bolt.fill", tint: Palette.warning, title: "Log with Shortcuts",
+            OnboardingPage(icon: "bolt.fill", tint: Palette.primary, title: "Log with Shortcuts",
                            message: "Say \"Add expense in OpenSpend\", or set up an automation that logs a purchase every time you tap to pay.") {
                 ShortcutPreview().scaleEffect(0.9)
             }
         case .widgets:
-            OnboardingPage(icon: "square.grid.2x2", tint: Palette.categoryTints[5], title: "Spending at a Glance",
+            OnboardingPage(icon: "square.grid.2x2", tint: Palette.primary, title: "Spending at a Glance",
                            message: "Home and Lock Screen widgets show how much you've spent today, this week or this month.") {
                 WidgetPreviewMock().scaleEffect(0.85)
             }
         case .notifications:
-            OnboardingPage(icon: "bell.badge.fill", tint: Palette.categoryTints[3], title: "Stay in the Loop",
+            OnboardingPage(icon: "bell.badge.fill", tint: Palette.primary, title: "Stay in the Loop",
                            message: "Get a daily reminder to log spending, and a note when new rows arrive from your spreadsheet.") {
                 EmptyView()
             }
@@ -102,7 +102,7 @@ struct OnboardingView: View {
 
     private func sampleRow(_ title: String, _ icon: String, _ amount: Double) -> some View {
         HStack(spacing: 12) {
-            IconBadge(systemName: icon, tint: Palette.tint(for: title), size: 40)
+            IconBadge(systemName: icon, size: 40)
             Text(title).font(.subheadline.weight(.semibold))
             Spacer()
             Text(Money.format(amount, currency: Settings.defaultCurrency)).font(.subheadline.weight(.bold).monospacedDigit())
@@ -132,9 +132,9 @@ private struct OnboardingPage<Extra: View>: View {
                 .font(.system(size: 44, weight: .semibold))
                 .foregroundStyle(tint)
                 .symbolEffect(.bounce, value: appeared)
-                .frame(width: 108, height: 108)
-                .background(tint.opacity(0.14), in: .circle)
-                .overlay(Circle().strokeBorder(tint.opacity(0.25), lineWidth: 1))
+                .frame(width: 96, height: 96)
+                .background(Palette.surface, in: .circle)
+                .overlay(Circle().strokeBorder(Palette.border, lineWidth: 1))
                 .accessibilityHidden(true)
             Text(title).font(.largeTitle.bold()).multilineTextAlignment(.center)
             Text(message).font(.body).foregroundStyle(Palette.textMuted).multilineTextAlignment(.center)

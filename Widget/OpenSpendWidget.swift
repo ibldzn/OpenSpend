@@ -94,28 +94,28 @@ struct OpenSpendWidgetView: View {
         case .systemMedium:
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.title).font(.subheadline.weight(.semibold)).foregroundStyle(.white.opacity(0.85))
+                    Text(entry.title).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.textMuted)
                     Text(Money.format(entry.total, currency: entry.currency))
-                        .font(.system(.largeTitle, design: .rounded).weight(.bold).monospacedDigit())
-                        .foregroundStyle(.white).minimumScaleFactor(0.5).lineLimit(1)
+                        .font(.system(.largeTitle).weight(.semibold).monospacedDigit())
+                        .foregroundStyle(Palette.primary).minimumScaleFactor(0.5).lineLimit(1)
                     Spacer()
-                    Text("\(entry.count) expenses · \(entry.accountName)").font(.caption.weight(.medium)).foregroundStyle(.white.opacity(0.85))
+                    Text("\(entry.count) expenses · \(entry.accountName)").font(.caption.weight(.medium)).foregroundStyle(Palette.textMuted)
                 }
                 Spacer()
                 Link(destination: URL(string: "openspend://add")!) {
-                    Image(systemName: "plus").font(.title2.bold()).foregroundStyle(.white)
+                    Image(systemName: "plus").font(.title2.bold()).foregroundStyle(Palette.onPrimary)
                         .frame(width: 52, height: 52).background(Palette.cta, in: .circle)
                 }
                 .accessibilityLabel("Add Expense")
             }
         default:
             VStack(alignment: .leading, spacing: 4) {
-                Text(entry.title).font(.caption.weight(.semibold)).foregroundStyle(.white.opacity(0.85))
+                Text(entry.title).font(.caption.weight(.semibold)).foregroundStyle(Palette.textMuted)
                 Text(Money.format(entry.total, currency: entry.currency))
-                    .font(.system(.title, design: .rounded).weight(.bold).monospacedDigit())
-                    .foregroundStyle(.white).minimumScaleFactor(0.4).lineLimit(1)
+                    .font(.system(.title).weight(.semibold).monospacedDigit())
+                    .foregroundStyle(Palette.primary).minimumScaleFactor(0.4).lineLimit(1)
                 Spacer()
-                Text(entry.accountName).font(.caption2.weight(.medium)).foregroundStyle(.white.opacity(0.85))
+                Text(entry.accountName).font(.caption2.weight(.medium)).foregroundStyle(Palette.textMuted)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -127,7 +127,7 @@ struct OpenSpendWidget: Widget {
         AppIntentConfiguration(kind: "OpenSpendWidget", intent: FilterIntent.self, provider: Provider()) { entry in
             OpenSpendWidgetView(entry: entry)
                 .containerBackground(for: .widget) {
-                    LinearGradient(colors: [Palette.heroStart, Palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Palette.background
                 }
         }
         .configurationDisplayName("Spending")

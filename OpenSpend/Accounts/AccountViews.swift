@@ -23,7 +23,8 @@ struct ChooseAccountTypeView: View {
                         .font(.system(size: 36, weight: .semibold))
                         .foregroundStyle(Palette.primary)
                         .frame(width: 88, height: 88)
-                        .background(Palette.primary.opacity(0.14), in: .circle)
+                        .background(Palette.surface, in: .circle)
+                        .overlay(Circle().strokeBorder(Palette.border, lineWidth: 1))
                         .accessibilityHidden(true)
                     Text(isFirstAccount ? "Create your first account" : "Create new account")
                         .font(.title2.bold())
@@ -34,7 +35,7 @@ struct ChooseAccountTypeView: View {
                 }
                 .padding(.vertical, 24)
 
-                typeCard(icon: "tablecells", tint: Palette.success, title: "Google Sheets",
+                typeCard(icon: "tablecells", tint: Palette.primary, title: "Google Sheets",
                          detail: "Sync every expense to a spreadsheet in your Google Drive. Edits made in the sheet come back to the app.") {
                     createSheetsAccount()
                 }

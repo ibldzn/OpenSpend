@@ -75,7 +75,7 @@ private struct GuideStep: View {
     var text: String
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Text("\(number)").font(.subheadline.bold()).foregroundStyle(.white)
+            Text("\(number)").font(.subheadline.bold()).foregroundStyle(Palette.onPrimary)
                 .frame(width: 26, height: 26).background(Color.brand, in: .circle)
             Text(text).font(.subheadline)
         }
@@ -133,7 +133,7 @@ struct ShortcutPreview: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Image(systemName: "tablecells.badge.ellipsis").foregroundStyle(.white)
+                Image(systemName: "tablecells.badge.ellipsis").foregroundStyle(Palette.onPrimary)
                     .frame(width: 28, height: 28).background(Color.brand, in: .rect(cornerRadius: 7))
                 Text("OpenSpend").font(.subheadline.bold())
                 Spacer()
@@ -149,14 +149,13 @@ struct ShortcutPreview: View {
             }
             HStack {
                 Text("Cancel").frame(maxWidth: .infinity).padding(10).background(Palette.fill, in: .capsule)
-                Text("Add").bold().foregroundStyle(.white).frame(maxWidth: .infinity).padding(10).background(Color.brand, in: .capsule)
+                Text("Add").bold().foregroundStyle(Palette.onPrimary).frame(maxWidth: .infinity).padding(10).background(Color.brand, in: .capsule)
             }
             .font(.subheadline)
         }
         .padding(16)
-        .background(.regularMaterial, in: .rect(cornerRadius: 24))
-        .padding()
-        .background(LinearGradient(colors: [.brand.opacity(0.35), .purple.opacity(0.25)], startPoint: .topLeading, endPoint: .bottomTrailing), in: .rect(cornerRadius: 24))
+        .background(Palette.surface, in: .rect(cornerRadius: Radius.xl))
+        .overlay(RoundedRectangle(cornerRadius: Radius.xl).strokeBorder(Palette.border, lineWidth: 1))
     }
 }
 

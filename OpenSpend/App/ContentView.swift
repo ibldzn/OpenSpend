@@ -21,6 +21,7 @@ struct ContentView: View {
         }
         .environment(router)
         .tint(.brand)
+        .preferredColorScheme(.dark)
         .environment(updateChecker)
         .onOpenURL { router.handle($0) }
         .task {

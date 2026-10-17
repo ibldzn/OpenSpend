@@ -102,7 +102,8 @@ struct ExpenseFormView: View {
                 .disabled(!canSave)
                 .padding(.horizontal, Space.lg)
                 .padding(.vertical, Space.sm)
-                .background(.bar)
+                .background(Palette.background)
+                .overlay(alignment: .top) { Rectangle().fill(Palette.border).frame(height: 1) }
             }
             .navigationTitle(isEditing ? "Edit Expense" : "New Expense")
             .navigationBarTitleDisplayMode(.inline)
@@ -137,11 +138,11 @@ struct ExpenseFormView: View {
             Text("Amount").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.textMuted)
             HStack(alignment: .firstTextBaseline, spacing: Space.sm) {
                 Text(Money.symbol(for: currency))
-                    .font(.system(size: amountSize * 0.55, weight: .semibold, design: .rounded))
+                    .font(.system(size: amountSize * 0.5, weight: .regular))
                     .foregroundStyle(Palette.textMuted)
                     .accessibilityHidden(true)
                 TextField("0", text: $amountString)
-                    .font(.system(size: amountSize, weight: .bold, design: .rounded).monospacedDigit())
+                    .font(.system(size: amountSize, weight: .semibold).monospacedDigit())
                     .keyboardType(.decimalPad)
                     .focused($focus, equals: .amount)
                     .fixedSize()
@@ -155,7 +156,8 @@ struct ExpenseFormView: View {
                 .foregroundStyle(Palette.primary)
                 .padding(.horizontal, Space.md)
                 .frame(minHeight: 32)
-                .background(Palette.primary.opacity(0.12), in: .capsule)
+                .background(Palette.fill, in: .capsule)
+                .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1))
                 .padding(.vertical, 6)
                 .contentShape(.rect)
             }

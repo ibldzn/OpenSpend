@@ -3,23 +3,11 @@ import SwiftUI
 
 // MARK: Backdrop & surfaces
 
-/// Soft layered backdrop used behind every screen. Decorative only.
+/// Flat backdrop used behind every screen.
 struct AppBackground: View {
     var body: some View {
-        ZStack {
-            Palette.background
-            Circle()
-                .fill(Palette.primary.opacity(0.16))
-                .frame(width: 420, height: 420)
-                .blur(radius: 90)
-                .offset(x: -140, y: -320)
-            Circle()
-                .fill(Palette.cta.opacity(0.12))
-                .frame(width: 360, height: 360)
-                .blur(radius: 90)
-                .offset(x: 170, y: -180)
-        }
-        .ignoresSafeArea()
+        Palette.background
+            .ignoresSafeArea()
         .accessibilityHidden(true)
     }
 }
@@ -31,13 +19,11 @@ extension View {
             .background(AppBackground())
     }
 
-    /// Frosted card surface with a hairline border.
+    /// Flat card surface with a hairline border.
     func card(padding: CGFloat = Space.lg, radius: CGFloat = Radius.lg) -> some View {
         self.padding(padding)
-            .background(Palette.surface.opacity(0.92), in: .rect(cornerRadius: radius))
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: radius))
-            .overlay(RoundedRectangle(cornerRadius: radius).strokeBorder(Palette.border.opacity(0.7), lineWidth: 0.5))
-            .shadow(color: .black.opacity(0.05), radius: 12, y: 4)
+            .background(Palette.surface, in: .rect(cornerRadius: radius))
+            .overlay(RoundedRectangle(cornerRadius: radius).strokeBorder(Palette.border, lineWidth: 1))
     }
 
     /// Fades and lifts content in, staggered by `index`. Skipped under Reduce Motion.
@@ -89,8 +75,9 @@ struct LargeButtonStyle: ButtonStyle {
         configuration.label
             .font(.headline)
             .frame(maxWidth: .infinity, minHeight: 52)
-            .foregroundStyle(prominent ? Color.white : Palette.primary)
-            .background(prominent ? Palette.cta : Palette.primary.opacity(0.12), in: .rect(cornerRadius: Radius.md))
+            .foregroundStyle(prominent ? Palette.onPrimary : Palette.primary)
+            .background(prominent ? Palette.cta : Palette.fill, in: .rect(cornerRadius: Radius.md))
+            .overlay(RoundedRectangle(cornerRadius: Radius.md).strokeBorder(prominent ? Color.clear : Palette.border, lineWidth: 1))
             .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .animation(Motion.press, value: configuration.isPressed)
@@ -112,7 +99,7 @@ struct ScaleOnPressStyle: ButtonStyle {
     }
 }
 
-/// 44pt circular glass icon button for top bars.
+/// 44pt circular icon button for top bars.
 struct CircleIconButton: View {
     var systemName: String
     var label: String
@@ -124,8 +111,8 @@ struct CircleIconButton: View {
                 .font(.body.weight(.semibold))
                 .foregroundStyle(.primary)
                 .frame(width: 44, height: 44)
-                .background(.regularMaterial, in: .circle)
-                .overlay(Circle().strokeBorder(Palette.border.opacity(0.6), lineWidth: 0.5))
+                .background(Palette.surface, in: .circle)
+                .overlay(Circle().strokeBorder(Palette.border, lineWidth: 1))
         }
         .buttonStyle(ScaleOnPressStyle())
         .accessibilityLabel(label)
@@ -144,12 +131,13 @@ struct IconBadge: View {
             .font(.system(size: size * 0.44, weight: .semibold))
             .foregroundStyle(tint)
             .frame(width: size, height: size)
-            .background(tint.opacity(0.15), in: .rect(cornerRadius: size * 0.32))
+            .background(Palette.fill, in: .rect(cornerRadius: size * 0.28))
+            .overlay(RoundedRectangle(cornerRadius: size * 0.28).strokeBorder(Palette.border, lineWidth: 1))
             .accessibilityHidden(true)
     }
 }
 
-/// Settings row icon: white glyph on a colored rounded square.
+/// Settings row icon: glyph on a neutral tile. `color` is ignored in the monochrome theme.
 struct SettingsIcon: View {
     var systemName: String
     var color: Color
@@ -157,9 +145,9 @@ struct SettingsIcon: View {
     var body: some View {
         Image(systemName: systemName)
             .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(Palette.primary)
             .frame(width: 30, height: 30)
-            .background(color.gradient, in: .rect(cornerRadius: 8))
+            .background(Palette.fill, in: .rect(cornerRadius: 7))
             .accessibilityHidden(true)
     }
 }
@@ -212,7 +200,7 @@ struct IconGridView: View {
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .medium))
                         .frame(maxWidth: .infinity, minHeight: 48)
-                        .foregroundStyle(selected ? Color.white : Color.primary)
+                        .foregroundStyle(selected ? Palette.onPrimary : Palette.primary)
                         .background(selected ? Palette.primary : Palette.fill, in: .rect(cornerRadius: Radius.sm))
                 }
                 .buttonStyle(ScaleOnPressStyle())
@@ -244,7 +232,7 @@ struct Chip: View {
             }
             .padding(.horizontal, 14)
             .frame(minHeight: 40)
-            .foregroundStyle(selected ? Color.white : Color.primary)
+            .foregroundStyle(selected ? Palette.onPrimary : Palette.primary)
             .background(selected ? Palette.primary : Palette.surface, in: .capsule)
             .overlay(Capsule().strokeBorder(selected ? Color.clear : Palette.border, lineWidth: 1))
             .contentShape(.capsule)
@@ -275,7 +263,7 @@ struct PillPicker<Value: Hashable>: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity, minHeight: 36)
-                        .foregroundStyle(on ? Color.white : Palette.textMuted)
+                        .foregroundStyle(on ? Palette.onPrimary : Palette.textMuted)
                         .background {
                             if on { Capsule().fill(Palette.primary).matchedGeometryEffect(id: "pill", in: ns) }
                         }
@@ -286,7 +274,8 @@ struct PillPicker<Value: Hashable>: View {
             }
         }
         .padding(Space.xs)
-        .background(Palette.fill.opacity(0.8), in: .capsule)
+        .background(Palette.surface, in: .capsule)
+        .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1))
         // Compact segmented control: capped like system tab bars so labels never truncate.
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
@@ -361,9 +350,8 @@ struct SyncToast: View {
         }
         .padding(.horizontal, Space.lg)
         .padding(.vertical, Space.md)
-        .background(.regularMaterial, in: .capsule)
-        .overlay(Capsule().strokeBorder(Palette.border.opacity(0.6), lineWidth: 0.5))
-        .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
+        .background(Palette.surface, in: .capsule)
+        .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1))
         .transition(.move(edge: .top).combined(with: .opacity))
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.updatesFrequently)
@@ -429,9 +417,9 @@ struct EmptyStateView: View {
         VStack(spacing: Space.md) {
             Image(systemName: icon)
                 .font(.system(size: 28, weight: .semibold))
-                .foregroundStyle(Palette.primary)
+                .foregroundStyle(Palette.textMuted)
                 .frame(width: 64, height: 64)
-                .background(Palette.primary.opacity(0.12), in: .circle)
+                .background(Palette.fill, in: .circle)
                 .accessibilityHidden(true)
             Text(title).font(.headline)
             Text(message).font(.subheadline).foregroundStyle(Palette.textMuted).multilineTextAlignment(.center)
