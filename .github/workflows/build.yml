@@ -43,6 +43,15 @@ jobs:
             -destination "id=${{ steps.sim.outputs.udid }}" \
             CODE_SIGNING_ALLOWED=NO > build.log 2>&1 || { grep -E "error:" build.log | sort -u; exit 1; }
 
+      # Logs need a GitHub login to read; annotations don't.
+      - name: Report errors 1-30
+        if: failure()
+        run: python3 .github/scripts/annotate.py 0
+
+      - name: Report errors 31-60
+        if: failure()
+        run: python3 .github/scripts/annotate.py 30
+
       - name: Test
         run: |
           set -o pipefail
