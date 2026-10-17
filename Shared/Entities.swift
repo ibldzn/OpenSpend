@@ -49,8 +49,8 @@ struct CategoryEntity: AppEntity {
     init(id: String, accountId: String, name: String, iconName: String) {
         self.id = id
         self.accountId = accountId
-        self.name = name
         self.iconName = iconName
+        self.name = name // @Property setter needs every stored property set first
     }
 
     init(_ c: ExpenseCategory) {
@@ -88,8 +88,8 @@ struct PaymentEntity: AppEntity {
     init(id: String, accountId: String, name: String, iconName: String) {
         self.id = id
         self.accountId = accountId
-        self.name = name
         self.iconName = iconName
+        self.name = name // @Property setter needs every stored property set first
     }
 
     init(_ p: ExpensePayment) {
