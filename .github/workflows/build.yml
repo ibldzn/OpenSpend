@@ -58,7 +58,11 @@ jobs:
           xcodebuild test \
             -project OpenSpend.xcodeproj -scheme OpenSpend \
             -destination "id=${{ steps.sim.outputs.udid }}" \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO > test.log 2>&1 || {
+              # Logs need a GitHub login; annotations don't.
+              grep -E "error:|Test Case .* failed" test.log | sort -u | head -20 | sed 's/^/::error::/'
+              exit 1
+            }
 
       - name: Upload build log
         if: failure()
