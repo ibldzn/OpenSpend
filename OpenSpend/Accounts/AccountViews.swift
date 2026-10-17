@@ -21,7 +21,7 @@ struct ChooseAccountTypeView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "rectangle.stack.badge.plus")
                         .font(.system(size: 44))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(Color.brand)
                     Text(isFirstAccount ? "Create your first account" : "Create new account")
                         .font(.title2.bold())
                     Text("An account keeps its own expenses, categories and payment methods.")
@@ -142,7 +142,7 @@ struct ManageAccountsView: View {
                         }
                         Spacer()
                         if a.id.uuidString == activeAccountId || (activeAccountId.isEmpty && a.id == accounts.first?.id) {
-                            Image(systemName: "checkmark").foregroundStyle(Color.accentColor).bold()
+                            Image(systemName: "checkmark").foregroundStyle(Color.brand).bold()
                         }
                     }
                     .contentShape(.rect)
@@ -219,7 +219,7 @@ struct AccountSettingsView: View {
                     ScrollView { IconGridView(icons: IconCatalog.account, selection: $account.iconName).padding() }
                         .navigationTitle("Icon")
                 } label: {
-                    HStack { Text("Icon"); Spacer(); Image(systemName: account.iconName).foregroundStyle(Color.accentColor) }
+                    HStack { Text("Icon"); Spacer(); Image(systemName: account.iconName).foregroundStyle(Color.brand) }
                 }
                 LabeledContent("Type", value: account.type == .sheets ? "Google Sheets" : "Local")
             }

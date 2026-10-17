@@ -51,8 +51,19 @@ enum Settings {
 enum SharedModelContainer {
     static let schema = Schema([ExpenseAccount.self, ExpenseCategory.self, ExpensePayment.self, Expense.self, GoogleConnection.self])
 
+    /// Set by UI tests: start from an empty in-memory store.
+    static let isUITesting = ProcessInfo.processInfo.arguments.contains("-uiTesting")
+
     static let shared: ModelContainer = {
-        let config = ModelConfiguration(schema: schema, groupContainer: .identifier(AppGroup.id), cloudKitDatabase: .none)
+        if isUITesting {
+            return try! ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true))
+        }
+        // SwiftData traps (not throws) when the app group is missing from the entitlements,
+        // e.g. unsigned simulator builds. Resolve the folder ourselves and fall back to the
+        // app's own container; the widget then just can't see the data.
+        let base = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: AppGroup.id) ?? URL.applicationSupportDirectory
+        try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        let config = ModelConfiguration(schema: schema, url: base.appending(path: "OpenSpend.store"), cloudKitDatabase: .none)
         do {
             return try ModelContainer(for: schema, configurations: config)
         } catch {

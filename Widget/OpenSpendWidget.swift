@@ -103,7 +103,7 @@ struct OpenSpendWidgetView: View {
                 Spacer()
                 Link(destination: URL(string: "openspend://add")!) {
                     Image(systemName: "plus").font(.title2.bold()).foregroundStyle(.white)
-                        .frame(width: 52, height: 52).background(Color.accentColor, in: .circle)
+                        .frame(width: 52, height: 52).background(Color.brand, in: .circle)
                 }
             }
         default:

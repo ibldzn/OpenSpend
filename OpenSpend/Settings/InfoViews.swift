@@ -73,7 +73,7 @@ private struct GuideStep: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Text("\(number)").font(.subheadline.bold()).foregroundStyle(.white)
-                .frame(width: 26, height: 26).background(Color.accentColor, in: .circle)
+                .frame(width: 26, height: 26).background(Color.brand, in: .circle)
             Text(text).font(.subheadline)
         }
     }
@@ -129,7 +129,7 @@ struct ShortcutPreview: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "tablecells.badge.ellipsis").foregroundStyle(.white)
-                    .frame(width: 28, height: 28).background(Color.accentColor, in: .rect(cornerRadius: 7))
+                    .frame(width: 28, height: 28).background(Color.brand, in: .rect(cornerRadius: 7))
                 Text("OpenSpend").font(.subheadline.bold())
                 Spacer()
             }
@@ -144,14 +144,14 @@ struct ShortcutPreview: View {
             }
             HStack {
                 Text("Cancel").frame(maxWidth: .infinity).padding(10).background(Color(.tertiarySystemFill), in: .capsule)
-                Text("Add").bold().foregroundStyle(.white).frame(maxWidth: .infinity).padding(10).background(Color.accentColor, in: .capsule)
+                Text("Add").bold().foregroundStyle(.white).frame(maxWidth: .infinity).padding(10).background(Color.brand, in: .capsule)
             }
             .font(.subheadline)
         }
         .padding(16)
         .background(.regularMaterial, in: .rect(cornerRadius: 24))
         .padding()
-        .background(LinearGradient(colors: [.accentColor.opacity(0.35), .purple.opacity(0.25)], startPoint: .topLeading, endPoint: .bottomTrailing), in: .rect(cornerRadius: 24))
+        .background(LinearGradient(colors: [.brand.opacity(0.35), .purple.opacity(0.25)], startPoint: .topLeading, endPoint: .bottomTrailing), in: .rect(cornerRadius: 24))
     }
 }
 
@@ -249,7 +249,7 @@ struct WhatsNewView: View {
                 Text("Version \(entry.version)").font(.subheadline).foregroundStyle(.secondary)
                 ForEach(entry.points, id: \.self) { p in
                     HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.accentColor)
+                        Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.brand)
                         Text(p)
                     }
                 }

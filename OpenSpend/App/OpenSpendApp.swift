@@ -7,6 +7,7 @@ struct OpenSpendApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
+        if SharedModelContainer.isUITesting { AppGroup.defaults.removePersistentDomain(forName: AppGroup.id) }
         Settings.register()
     }
 

@@ -20,6 +20,7 @@ struct ContentView: View {
             }
         }
         .environment(router)
+        .tint(.brand)
         .environment(updateChecker)
         .onOpenURL { router.handle($0) }
         .task {

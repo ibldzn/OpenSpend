@@ -29,7 +29,7 @@ struct OnboardingView: View {
     private func content(for p: Page) -> some View {
         switch p {
         case .introduction:
-            OnboardingPage(icon: "tablecells.badge.ellipsis", tint: .accentColor, title: "Welcome to OpenSpend",
+            OnboardingPage(icon: "tablecells.badge.ellipsis", tint: .brand, title: "Welcome to OpenSpend",
                            message: "A simple, quick way to track what you spend.") {
                 VStack(spacing: 10) {
                     sampleRow("Groceries", "cart", 54.20)
@@ -64,7 +64,7 @@ struct OnboardingView: View {
         VStack(spacing: 12) {
             HStack(spacing: 6) {
                 ForEach(Page.allCases, id: \.self) { p in
-                    Capsule().fill(p == page ? Color.accentColor : Color(.tertiaryLabel))
+                    Capsule().fill(p == page ? Color.brand : Color(.tertiaryLabel))
                         .frame(width: p == page ? 20 : 7, height: 7)
                 }
             }

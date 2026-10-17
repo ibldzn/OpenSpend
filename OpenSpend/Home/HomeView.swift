@@ -186,8 +186,8 @@ struct AccountScopedHomeView: View {
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white)
                 .frame(width: 64, height: 64)
-                .background(Color.accentColor.gradient, in: .circle)
-                .shadow(color: .accentColor.opacity(0.35), radius: 12, y: 6)
+                .background(Color.brand.gradient, in: .circle)
+                .shadow(color: .brand.opacity(0.35), radius: 12, y: 6)
         }
         .buttonStyle(ScaleOnPressStyle())
         .padding(.bottom, 12)

@@ -26,6 +26,7 @@ schemes:
     test:
       targets:
         - OpenSpendTests
+        - OpenSpendUITests
 
 targets:
   OpenSpend:
@@ -95,3 +96,11 @@ targets:
       - Tests
       - Shared/SheetCodec.swift
       - Shared/Formatting.swift
+
+  OpenSpendUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - UITests
+    dependencies:
+      - target: OpenSpend

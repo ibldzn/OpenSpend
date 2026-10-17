@@ -73,7 +73,7 @@ struct ExpenseGraphView: View {
         } else {
             Chart(buckets, id: \.date) { b in
                 BarMark(x: .value("Date", b.date, unit: unit), y: .value("Spent", b.total))
-                    .foregroundStyle(Color.accentColor.gradient)
+                    .foregroundStyle(Color.brand.gradient)
                     .cornerRadius(4)
             }
             .chartXScale(domain: domain)

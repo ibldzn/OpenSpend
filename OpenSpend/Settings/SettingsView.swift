@@ -121,7 +121,7 @@ struct SettingsView: View {
                     .font(.system(size: 40, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 76, height: 76)
-                    .background(Color.accentColor.gradient, in: .rect(cornerRadius: 18))
+                    .background(Color.brand.gradient, in: .rect(cornerRadius: 18))
                     .onTapGesture {
                         logoTaps += 1
                         if logoTaps >= 7 { showAdvanced.toggle(); logoTaps = 0; Haptics.success() }
@@ -167,7 +167,7 @@ struct CurrencyPickerView: View {
                         Text(c.code).font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    if c.code == selection { Image(systemName: "checkmark").foregroundStyle(Color.accentColor).bold() }
+                    if c.code == selection { Image(systemName: "checkmark").foregroundStyle(Color.brand).bold() }
                 }
             }
         }

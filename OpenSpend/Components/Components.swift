@@ -11,8 +11,8 @@ struct LargeButtonStyle: ButtonStyle {
             .font(.headline)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .foregroundStyle(prominent ? Color.white : Color.accentColor)
-            .background(prominent ? Color.accentColor : Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 16))
+            .foregroundStyle(prominent ? Color.white : Color.brand)
+            .background(prominent ? Color.brand : Color.brand.opacity(0.12), in: .rect(cornerRadius: 16))
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(duration: 0.2), value: configuration.isPressed)
     }
@@ -35,7 +35,7 @@ struct ScaleOnPressStyle: ButtonStyle {
 
 struct IconBadge: View {
     var systemName: String
-    var tint: Color = .accentColor
+    var tint: Color = .brand
     var size: CGFloat = 36
 
     var body: some View {
@@ -98,7 +98,7 @@ struct IconGridView: View {
                         .font(.system(size: 18, weight: .medium))
                         .frame(maxWidth: .infinity, minHeight: 46)
                         .foregroundStyle(selection == icon ? Color.white : Color.primary)
-                        .background(selection == icon ? Color.accentColor : Color(.tertiarySystemFill), in: .rect(cornerRadius: 12))
+                        .background(selection == icon ? Color.brand : Color(.tertiarySystemFill), in: .rect(cornerRadius: 12))
                 }
                 .buttonStyle(ScaleOnPressStyle())
                 .accessibilityLabel(icon)
@@ -126,7 +126,7 @@ struct Chip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .foregroundStyle(selected ? Color.white : Color.primary)
-            .background(selected ? Color.accentColor : Color(.secondarySystemGroupedBackground), in: .capsule)
+            .background(selected ? Color.brand : Color(.secondarySystemGroupedBackground), in: .capsule)
             .overlay(Capsule().strokeBorder(selected ? Color.clear : Color(.separator), lineWidth: 0.5))
         }
         .buttonStyle(ScaleOnPressStyle())

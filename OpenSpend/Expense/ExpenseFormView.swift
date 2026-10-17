@@ -172,7 +172,7 @@ struct ExpenseFormView: View {
     private var dateRow: some View {
         Button { showDatePicker = true } label: {
             HStack {
-                Image(systemName: "calendar").foregroundStyle(Color.accentColor)
+                Image(systemName: "calendar").foregroundStyle(Color.brand)
                 Text("Date")
                 Spacer()
                 Text(date.formatted(date: .abbreviated, time: .shortened)).foregroundStyle(.secondary)
@@ -270,18 +270,25 @@ struct ExpenseFormView: View {
         suggestions = titleSuggestionsEnabled && focus == .title ? SuggestionEngine.shared.titleSuggestions(for: title, in: history) : []
 
         guard smartSuggestionsEnabled, !isEditing else { return }
-        // Only overwrite a selection the engine made itself.
-        if selectedCategories.isEmpty || selectedCategories == [autoCategory].compactMap({ $0 }) {
+        // Only overwrite a selection the engine made itself. Checked again after each await,
+        // since the user may tap a chip while inference is running.
+        func auto(_ selected: [String], _ auto: String?) -> Bool { selected.isEmpty || selected == [auto].compactMap { $0 } }
+
+        if auto(selectedCategories, autoCategory) {
             let hit = await SuggestionEngine.shared.infer(.category, title: title, options: categories.map(\.name), history: history, accountId: account.id)
             guard !Task.isCancelled else { return }
-            autoCategory = hit
-            selectedCategories = hit.map { [$0] } ?? []
+            if auto(selectedCategories, autoCategory) {
+                autoCategory = hit
+                selectedCategories = hit.map { [$0] } ?? []
+            }
         }
-        if selectedPayments.isEmpty || selectedPayments == [autoPayment].compactMap({ $0 }) {
+        if auto(selectedPayments, autoPayment) {
             let hit = await SuggestionEngine.shared.infer(.payment, title: title, options: payments.map(\.name), history: history, accountId: account.id)
             guard !Task.isCancelled else { return }
-            autoPayment = hit
-            selectedPayments = hit.map { [$0] } ?? []
+            if auto(selectedPayments, autoPayment) {
+                autoPayment = hit
+                selectedPayments = hit.map { [$0] } ?? []
+            }
         }
     }
 
