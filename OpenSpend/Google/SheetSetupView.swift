@@ -100,7 +100,7 @@ private struct ConnectionStep: View {
                                     Text(c.email).font(.caption).foregroundStyle(.secondary)
                                 }
                                 Spacer()
-                                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                                Image(systemName: "chevron.right").foregroundStyle(Palette.textMuted)
                             }
                         }
                     }
@@ -120,6 +120,7 @@ private struct ConnectionStep: View {
                 if let error { Text(error).foregroundStyle(.red) }
             }
         }
+        .appScreen()
         .navigationTitle("Google Account")
     }
 
@@ -191,6 +192,7 @@ private struct SpreadsheetStep: View {
                 if let error { Text(error).foregroundStyle(.red) } else { Text("Pull to refresh if a spreadsheet is missing.") }
             }
         }
+        .appScreen()
         .navigationTitle("Select a Spreadsheet")
         .searchable(text: $search, prompt: "Search Drive")
         .refreshable { await load() }
@@ -275,6 +277,7 @@ private struct TabStep: View {
                 Text("Each sheet can belong to one account.")
             }
         }
+        .appScreen()
         .navigationTitle("Choose a Sheet")
     }
 }
@@ -318,6 +321,7 @@ private struct ColumnMappingStep: View {
                 Section { Text(error).foregroundStyle(.red) }
             }
         }
+        .appScreen()
         .navigationTitle("Map Columns")
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
@@ -439,7 +443,7 @@ struct ManageConnectionsView: View {
                         Text(c.displayName)
                         Text(c.email).font(.caption).foregroundStyle(.secondary)
                         let used = accounts.filter { $0.connectionEmail == c.email }.map(\.name)
-                        if !used.isEmpty { Text("Used by: \(used.joined(separator: ", "))").font(.caption2).foregroundStyle(.tertiary) }
+                        if !used.isEmpty { Text("Used by: \(used.joined(separator: ", "))").font(.caption2).foregroundStyle(Palette.textMuted) }
                         if Keychain.load(for: c.email) == nil { Text("Signed out — reconnect").font(.caption2).foregroundStyle(.orange) }
                     }
                     .swipeActions {
@@ -478,6 +482,7 @@ struct ManageConnectionsView: View {
                 }
             }
         }
+        .appScreen()
         .navigationTitle("Google Accounts")
         .confirmationDialog("Remove \(toRemove?.email ?? "")?", isPresented: Binding(get: { toRemove != nil }, set: { if !$0 { toRemove = nil } }), titleVisibility: .visible) {
             Button("Sign Out & Remove", role: .destructive) {

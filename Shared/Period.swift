@@ -15,6 +15,17 @@ enum FilterPeriod: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    /// Compact label for segmented pills.
+    var shortTitle: String {
+        switch self {
+        case .today: "Today"
+        case .thisWeek: "Week"
+        case .thisMonth: "Month"
+        case .thisYear: "Year"
+        case .allTime: "All"
+        }
+    }
+
     var spentTitle: String {
         switch self {
         case .today: "Spent Today"

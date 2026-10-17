@@ -80,28 +80,35 @@ struct AccountScopedHomeView: View {
             List {
                 if account.type == .sheets && !account.isLinked {
                     Section { connectBanner }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 0, leading: Space.lg, bottom: Space.sm, trailing: Space.lg))
                 }
 
                 Section {
-                    SummaryCard(account: account, total: total, count: filtered.count, currency: defaultCurrency, expenses: filtered)
-                }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-
-                if !categories.isEmpty || !payments.isEmpty {
-                    Section {
-                        FilterBar(account: account, categories: categories.map(\.name), payments: payments.map(\.name))
+                    VStack(spacing: Space.lg) {
+                        PillPicker(options: FilterPeriod.allCases, selection: Bindable(account).filterPeriod) { $0.shortTitle }
+                        HeroCard(period: period, total: total, count: filtered.count, currency: defaultCurrency, expenses: filtered)
+                            .staggeredAppear(1)
+                        InsightsCard(expenses: filtered, period: period, currency: defaultCurrency, iconForCategory: iconForCategory)
+                            .staggeredAppear(2)
+                        if !categories.isEmpty || !payments.isEmpty {
+                            FilterBar(account: account, categories: categories.map(\.name), payments: payments.map(\.name))
+                                .staggeredAppear(3)
+                        }
                     }
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
                 }
+                .listRowInsets(EdgeInsets(top: 0, leading: Space.lg, bottom: Space.sm, trailing: Space.lg))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
 
                 if filtered.isEmpty {
                     Section {
                         EmptyStateView(icon: "tray",
                                        title: expenses.isEmpty ? "No expenses yet" : "Nothing here",
-                                       message: expenses.isEmpty ? "Tap + to log your first expense." : "No expenses match this period or filter.")
+                                       message: expenses.isEmpty ? "Tap Add Expense to log your first one." : "No expenses match this period or filter.")
+                            .card()
                     }
+                    .listRowInsets(EdgeInsets(top: 0, leading: Space.lg, bottom: 0, trailing: Space.lg))
                     .listRowBackground(Color.clear)
                 }
 
@@ -112,26 +119,28 @@ struct AccountScopedHomeView: View {
                                 ExpenseRow(expense: e, icon: e.categories.first.flatMap { iconForCategory[$0] } ?? "tag")
                             }
                             .buttonStyle(.plain)
+                            .listRowBackground(Palette.surface)
                             .swipeActions {
                                 Button(role: .destructive) { expenseToDelete = e } label: { Label("Delete", systemImage: "trash") }
                             }
                         }
                     } header: {
-                        HStack {
-                            Text(dayLabel(group.day))
-                            Spacer()
-                            Text(Money.format(group.items.reduce(0) { $0 + $1.amount }, currency: defaultCurrency))
-                        }
+                        SectionHeader(title: dayLabel(group.day), trailing: Money.format(group.items.reduce(0) { $0 + $1.amount }, currency: defaultCurrency))
+                            .textCase(nil)
+                            .foregroundStyle(.primary)
+                            .padding(.horizontal, -Space.xs)
                     }
                 }
             }
             .listStyle(.insetGrouped)
-            .contentMargins(.bottom, 96, for: .scrollContent)
+            .listSectionSpacing(Space.lg)
+            .appScreen()
+            .contentMargins(.bottom, 110, for: .scrollContent)
             .refreshable { await ExpenseSyncService.shared.sync(account, context: context) }
+            .safeAreaInset(edge: .top, spacing: 0) { header }
             .overlay(alignment: .bottom) { addButton }
             .syncToast()
-            .toolbar { toolbar }
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showCreate) { ExpenseFormView(account: account, mode: .create) }
             .sheet(item: $selectedExpense) { ExpenseFormView(account: account, mode: .edit($0)) }
             .sheet(isPresented: $showSettings) { SettingsView(account: account) }
@@ -167,40 +176,39 @@ struct AccountScopedHomeView: View {
 
     private var connectBanner: some View {
         Button { showSheetSetup = true } label: {
-            HStack(spacing: 12) {
-                IconBadge(systemName: "tablecells", tint: .green)
+            HStack(spacing: Space.md) {
+                IconBadge(systemName: "tablecells", tint: Palette.success, size: 44)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Action required").font(.subheadline.weight(.semibold))
-                    Text("Choose a spreadsheet to start syncing.").font(.footnote).foregroundStyle(.secondary)
+                    Text("Choose a spreadsheet to start syncing.").font(.footnote).foregroundStyle(Palette.textMuted)
                 }
                 Spacer()
-                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.textMuted)
             }
+            .card()
         }
-        .buttonStyle(.plain)
+        .buttonStyle(ScaleOnPressStyle())
     }
 
     private var addButton: some View {
         Button(action: startCreate) {
-            Image(systemName: "plus")
-                .font(.title2.weight(.semibold))
+            Label("Add Expense", systemImage: "plus")
+                .font(.headline)
                 .foregroundStyle(.white)
-                .frame(width: 64, height: 64)
-                .background(Color.brand.gradient, in: .circle)
-                .shadow(color: .brand.opacity(0.35), radius: 12, y: 6)
+                .padding(.horizontal, Space.xl)
+                .frame(minHeight: 56)
+                .background(Palette.cta, in: .capsule)
+                .shadow(color: Palette.cta.opacity(0.35), radius: 16, y: 8)
         }
         .buttonStyle(ScaleOnPressStyle())
-        .padding(.bottom, 12)
-        .accessibilityLabel("Add Expense")
+        .padding(.bottom, Space.sm)
     }
 
-    @ToolbarContentBuilder
-    private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button { showSearch = true } label: { Image(systemName: "magnifyingglass") }
-                .accessibilityLabel("Search")
-        }
-        ToolbarItem(placement: .principal) {
+    /// Glass top bar: search, account switcher, settings.
+    private var header: some View {
+        HStack(spacing: Space.md) {
+            CircleIconButton(systemName: "magnifyingglass", label: "Search") { showSearch = true }
+            Spacer(minLength: 0)
             Menu {
                 ForEach(accounts) { a in
                     Button {
@@ -212,18 +220,32 @@ struct AccountScopedHomeView: View {
                 Divider()
                 Button { showManageAccounts = true } label: { Label("Manage Accounts", systemImage: "person.2") }
             } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: account.iconName).font(.footnote)
-                    Text(account.name).font(.headline)
-                    Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(.secondary)
+                HStack(spacing: Space.sm) {
+                    Image(systemName: account.iconName)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 28, height: 28)
+                        .background(Palette.primary, in: .circle)
+                    Text(account.name).font(.headline).lineLimit(1)
+                    Image(systemName: "chevron.down").font(.caption.weight(.bold)).foregroundStyle(Palette.textMuted)
                 }
+                .padding(.leading, Space.sm)
+                .padding(.trailing, Space.md)
+                .frame(minHeight: 44)
+                .background(.regularMaterial, in: .capsule)
+                .overlay(Capsule().strokeBorder(Palette.border.opacity(0.6), lineWidth: 0.5))
                 .foregroundStyle(.primary)
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
+            .accessibilityLabel("Account: \(account.name)")
+            .accessibilityHint("Switch account")
+            Spacer(minLength: 0)
+            CircleIconButton(systemName: "gearshape", label: "Settings") { showSettings = true }
         }
-        ToolbarItem(placement: .topBarTrailing) {
-            Button { showSettings = true } label: { Image(systemName: "gearshape") }
-                .accessibilityLabel("Settings")
-        }
+        .padding(.horizontal, Space.lg)
+        .padding(.vertical, Space.sm)
+        // Solid enough that scrolled content never collides with the status bar.
+        .background(.bar)
     }
 }
 

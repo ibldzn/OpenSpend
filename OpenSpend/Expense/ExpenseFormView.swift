@@ -71,31 +71,43 @@ struct ExpenseFormView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    amountField
-                    titleField
-                    dateRow
-                    optionSection(.category)
-                    optionSection(.payment)
-                    tagsSection
-                    notesSection
+                VStack(spacing: Space.lg) {
+                    amountField.staggeredAppear(0)
+                    detailsCard.staggeredAppear(1)
+                    optionSection(.category).staggeredAppear(2)
+                    optionSection(.payment).staggeredAppear(3)
+                    moreCard.staggeredAppear(4)
                     if isEditing {
-                        Button("Delete Expense", role: .destructive) { showDeleteConfirm = true }
-                            .buttonStyle(.largeSecondary)
-                            .tint(.red)
+                        Button(role: .destructive) { showDeleteConfirm = true } label: {
+                            Label("Delete Expense", systemImage: "trash")
+                                .font(.headline)
+                                .foregroundStyle(Palette.danger)
+                                .frame(maxWidth: .infinity, minHeight: 52)
+                                .background(Palette.danger.opacity(0.12), in: .rect(cornerRadius: Radius.md))
+                        }
+                        .buttonStyle(ScaleOnPressStyle())
                     }
                 }
-                .padding(20)
+                .padding(.horizontal, Space.lg)
+                .padding(.top, Space.sm)
+                .padding(.bottom, Space.xl)
             }
             .scrollDismissesKeyboard(.interactively)
-            .background(Color(.systemGroupedBackground))
+            .appScreen()
+            .safeAreaInset(edge: .bottom) {
+                Button(action: save) {
+                    Label(isEditing ? "Save Changes" : "Save Expense", systemImage: "checkmark")
+                }
+                .buttonStyle(.large)
+                .disabled(!canSave)
+                .padding(.horizontal, Space.lg)
+                .padding(.vertical, Space.sm)
+                .background(.bar)
+            }
             .navigationTitle(isEditing ? "Edit Expense" : "New Expense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(isEditing ? "Save" : "Add", action: save).bold().disabled(!canSave)
-                }
             }
             .sheet(isPresented: $showDatePicker) { DatePickerSheet(date: $date) }
             .sheet(isPresented: $showCurrencyPicker) { NavigationStack { CurrencyPickerView(selection: $currency) } }
@@ -118,80 +130,113 @@ struct ExpenseFormView: View {
 
     // MARK: Fields
 
+    @ScaledMetric(relativeTo: .largeTitle) private var amountSize: CGFloat = 52
+
     private var amountField: some View {
-        VStack(spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Button { showCurrencyPicker = true } label: {
-                    Text(Money.symbol(for: currency))
-                        .font(.system(size: 30, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.secondary)
-                }
+        VStack(spacing: Space.md) {
+            Text("Amount").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.textMuted)
+            HStack(alignment: .firstTextBaseline, spacing: Space.sm) {
+                Text(Money.symbol(for: currency))
+                    .font(.system(size: amountSize * 0.55, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Palette.textMuted)
+                    .accessibilityHidden(true)
                 TextField("0", text: $amountString)
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: amountSize, weight: .bold, design: .rounded).monospacedDigit())
                     .keyboardType(.decimalPad)
                     .focused($focus, equals: .amount)
                     .fixedSize()
+                    .accessibilityLabel("Amount in \(currency)")
             }
-            Button(currency) { showCurrencyPicker = true }
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+            Button { showCurrencyPicker = true } label: {
+                HStack(spacing: Space.xs) {
+                    Text(currency).font(.footnote.weight(.bold))
+                    Image(systemName: "chevron.down").font(.caption2.weight(.bold))
+                }
+                .foregroundStyle(Palette.primary)
+                .padding(.horizontal, Space.md)
+                .frame(minHeight: 32)
+                .background(Palette.primary.opacity(0.12), in: .capsule)
+                .padding(.vertical, 6)
+                .contentShape(.rect)
+            }
+            .buttonStyle(ScaleOnPressStyle())
+            .accessibilityLabel("Currency: \(currency)")
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .card(padding: Space.xl, radius: Radius.xl)
     }
 
-    private var titleField: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            TextField("What is the expense about?", text: $title)
-                .font(.body.weight(.medium))
-                .focused($focus, equals: .title)
-                .submitLabel(.next)
-                .onSubmit { focus = .amount }
-                .padding(14)
-            if focus == .title && !suggestions.isEmpty {
-                Divider()
-                ForEach(suggestions) { s in
-                    Button { apply(s) } label: {
-                        HStack {
-                            Image(systemName: "clock.arrow.circlepath").foregroundStyle(.secondary)
-                            Text(s.title).foregroundStyle(.primary)
-                            Spacer()
-                            Text(Money.format(s.amount, currency: s.currency)).foregroundStyle(.secondary)
+    private func fieldLabel(_ text: String) -> some View {
+        Text(text).font(.footnote.weight(.semibold)).foregroundStyle(Palette.textMuted)
+    }
+
+    private var detailsCard: some View {
+        VStack(alignment: .leading, spacing: Space.md) {
+            fieldLabel("Title")
+            VStack(alignment: .leading, spacing: 0) {
+                TextField("What is the expense about?", text: $title)
+                    .font(.body.weight(.medium))
+                    .focused($focus, equals: .title)
+                    .submitLabel(.next)
+                    .onSubmit { focus = .amount }
+                    .padding(.horizontal, Space.md)
+                    .frame(minHeight: 48)
+                if focus == .title && !suggestions.isEmpty {
+                    Divider().overlay(Palette.border)
+                    ForEach(suggestions) { s in
+                        Button { apply(s) } label: {
+                            HStack(spacing: Space.sm) {
+                                Image(systemName: "clock.arrow.circlepath").foregroundStyle(Palette.primary)
+                                Text(s.title).foregroundStyle(.primary).lineLimit(1)
+                                Spacer()
+                                Text(Money.format(s.amount, currency: s.currency)).foregroundStyle(Palette.textMuted).monospacedDigit()
+                            }
+                            .font(.subheadline)
+                            .padding(.horizontal, Space.md)
+                            .frame(minHeight: 44)
+                            .contentShape(.rect)
                         }
-                        .font(.subheadline)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Fills in the amount, category and payment method")
                     }
                 }
             }
-        }
-        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
-        .animation(.snappy, value: suggestions)
-    }
+            .background(Palette.fill.opacity(0.6), in: .rect(cornerRadius: Radius.md))
+            .animation(Motion.select, value: suggestions)
 
-    private var dateRow: some View {
-        Button { showDatePicker = true } label: {
-            HStack {
-                Image(systemName: "calendar").foregroundStyle(Color.brand)
-                Text("Date")
-                Spacer()
-                Text(date.formatted(date: .abbreviated, time: .shortened)).foregroundStyle(.secondary)
+            fieldLabel("Date")
+            Button { showDatePicker = true } label: {
+                HStack(spacing: Space.md) {
+                    Image(systemName: "calendar").foregroundStyle(Palette.primary)
+                    Text(date.formatted(date: .abbreviated, time: .shortened)).foregroundStyle(.primary)
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.textMuted)
+                }
+                .padding(.horizontal, Space.md)
+                .frame(minHeight: 48)
+                .background(Palette.fill.opacity(0.6), in: .rect(cornerRadius: Radius.md))
+                .contentShape(.rect)
             }
-            .padding(14)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+            .buttonStyle(ScaleOnPressStyle())
+            .accessibilityLabel("Date, \(date.formatted(date: .abbreviated, time: .shortened))")
         }
-        .buttonStyle(.plain)
+        .card()
     }
 
     private func optionSection(_ kind: OptionKind) -> some View {
         let options: [(String, String)] = kind == .category ? categories.map { ($0.name, $0.iconName) } : payments.map { ($0.name, $0.iconName) }
         let selected = kind == .category ? selectedCategories : selectedPayments
         let auto = kind == .category ? autoCategory : autoPayment
-        return VStack(alignment: .leading, spacing: 10) {
-            Text(kind == .category ? "Category" : "Payment Method")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .textCase(.uppercase)
+        return VStack(alignment: .leading, spacing: Space.md) {
+            HStack {
+                Text(kind == .category ? "Category" : "Payment Method").font(.headline)
+                Spacer()
+                if auto != nil && selected.contains(auto ?? "") {
+                    Label("Suggested", systemImage: "sparkles")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Palette.primary)
+                }
+            }
             FlowLayout {
                 ForEach(options, id: \.0) { name, icon in
                     Chip(title: name, icon: icon, selected: selected.contains(name), suggested: auto == name && selected.contains(name)) {
@@ -199,36 +244,39 @@ struct ExpenseFormView: View {
                         if kind == .category { autoCategory = nil } else { autoPayment = nil }
                     }
                 }
-                Chip(title: "Add", icon: "plus", selected: false) { addingOption = kind }
+                Chip(title: "New", icon: "plus", selected: false) { addingOption = kind }
+                    .accessibilityLabel(kind == .category ? "New category" : "New payment method")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .card()
     }
 
-    private var tagsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Tags").font(.footnote.weight(.semibold)).foregroundStyle(.secondary).textCase(.uppercase)
+    private var moreCard: some View {
+        VStack(alignment: .leading, spacing: Space.md) {
+            fieldLabel("Tags")
             FlowLayout {
                 ForEach(tags, id: \.self) { tag in
                     Chip(title: tag, icon: "xmark", selected: true) { tags.removeAll { $0 == tag } }
+                        .accessibilityLabel("Remove tag \(tag)")
                 }
                 TextField("Add tag", text: $tagInput)
                     .focused($focus, equals: .tag)
                     .submitLabel(.done)
                     .onSubmit(addTag)
-                    .frame(minWidth: 100)
-                    .padding(.vertical, 8)
+                    .frame(minWidth: 120, minHeight: 40)
+                    .padding(.horizontal, Space.md)
+                    .background(Palette.fill.opacity(0.6), in: .capsule)
             }
+            fieldLabel("Notes")
+            TextField("Anything worth remembering", text: $notes, axis: .vertical)
+                .lineLimit(3...8)
+                .focused($focus, equals: .notes)
+                .padding(Space.md)
+                .background(Palette.fill.opacity(0.6), in: .rect(cornerRadius: Radius.md))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var notesSection: some View {
-        TextField("Notes", text: $notes, axis: .vertical)
-            .lineLimit(3...8)
-            .focused($focus, equals: .notes)
-            .padding(14)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+        .card()
     }
 
     // MARK: Actions
@@ -327,6 +375,7 @@ struct DatePickerSheet: View {
                     .padding()
                 Spacer()
             }
+            .appScreen()
             .navigationTitle("Date")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

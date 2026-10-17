@@ -21,7 +21,7 @@ struct OnboardingView: View {
 
             bottomSection
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .background(AppBackground())
         .task { await notifications.refresh() }
     }
 
@@ -29,7 +29,7 @@ struct OnboardingView: View {
     private func content(for p: Page) -> some View {
         switch p {
         case .introduction:
-            OnboardingPage(icon: "tablecells.badge.ellipsis", tint: .brand, title: "Welcome to OpenSpend",
+            OnboardingPage(icon: "tablecells.badge.ellipsis", tint: Palette.primary, title: "Welcome to OpenSpend",
                            message: "A simple, quick way to track what you spend.") {
                 VStack(spacing: 10) {
                     sampleRow("Groceries", "cart", 54.20)
@@ -38,22 +38,22 @@ struct OnboardingView: View {
                 }
             }
         case .sync:
-            OnboardingPage(icon: "arrow.triangle.2.circlepath", tint: .green, title: "Lives in Google Sheets",
+            OnboardingPage(icon: "arrow.triangle.2.circlepath", tint: Palette.success, title: "Lives in Google Sheets",
                            message: "Connect a spreadsheet and every expense becomes a row. Edit the sheet and the app follows. Prefer to stay offline? Use a local account.") {
                 EmptyView()
             }
         case .shortcuts:
-            OnboardingPage(icon: "bolt.fill", tint: .yellow, title: "Log with Shortcuts",
+            OnboardingPage(icon: "bolt.fill", tint: Palette.warning, title: "Log with Shortcuts",
                            message: "Say \"Add expense in OpenSpend\", or set up an automation that logs a purchase every time you tap to pay.") {
                 ShortcutPreview().scaleEffect(0.9)
             }
         case .widgets:
-            OnboardingPage(icon: "square.grid.2x2", tint: .teal, title: "Spending at a Glance",
+            OnboardingPage(icon: "square.grid.2x2", tint: Palette.categoryTints[5], title: "Spending at a Glance",
                            message: "Home and Lock Screen widgets show how much you've spent today, this week or this month.") {
                 WidgetPreviewMock().scaleEffect(0.85)
             }
         case .notifications:
-            OnboardingPage(icon: "bell.badge.fill", tint: .orange, title: "Stay in the Loop",
+            OnboardingPage(icon: "bell.badge.fill", tint: Palette.categoryTints[3], title: "Stay in the Loop",
                            message: "Get a daily reminder to log spending, and a note when new rows arrive from your spreadsheet.") {
                 EmptyView()
             }
@@ -64,12 +64,14 @@ struct OnboardingView: View {
         VStack(spacing: 12) {
             HStack(spacing: 6) {
                 ForEach(Page.allCases, id: \.self) { p in
-                    Capsule().fill(p == page ? Color.brand : Color(.tertiaryLabel))
-                        .frame(width: p == page ? 20 : 7, height: 7)
+                    Capsule().fill(p == page ? Palette.primary : Palette.border)
+                        .frame(width: p == page ? 24 : 8, height: 8)
                 }
             }
-            .animation(.snappy, value: page)
-            .padding(.bottom, 8)
+            .animation(Motion.select, value: page)
+            .accessibilityElement()
+            .accessibilityLabel("Page \(page.rawValue + 1) of \(Page.allCases.count)")
+            .padding(.bottom, Space.sm)
 
             if page == .notifications {
                 Button(notifications.permission == .granted ? "Get Started" : "Enable Notifications") {
@@ -81,15 +83,17 @@ struct OnboardingView: View {
                 .buttonStyle(.large)
                 if notifications.permission != .granted {
                     Button("Continue without notifications", action: finish)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Palette.textMuted)
+                        .frame(minHeight: 44)
                 }
             } else {
                 Button("Continue") { page = Page(rawValue: page.rawValue + 1) ?? .notifications }
                     .buttonStyle(.large)
                 Button("Skip") { page = .notifications }
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Palette.textMuted)
+                    .frame(minHeight: 44)
             }
         }
         .padding(.horizontal, 24)
@@ -98,13 +102,12 @@ struct OnboardingView: View {
 
     private func sampleRow(_ title: String, _ icon: String, _ amount: Double) -> some View {
         HStack(spacing: 12) {
-            IconBadge(systemName: icon)
-            Text(title).font(.subheadline.weight(.medium))
+            IconBadge(systemName: icon, tint: Palette.tint(for: title), size: 40)
+            Text(title).font(.subheadline.weight(.semibold))
             Spacer()
-            Text(Money.format(amount, currency: Settings.defaultCurrency)).font(.subheadline.weight(.semibold))
+            Text(Money.format(amount, currency: Settings.defaultCurrency)).font(.subheadline.weight(.bold).monospacedDigit())
         }
-        .padding(12)
-        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+        .card(padding: Space.md, radius: Radius.md)
     }
 
     private func finish() {
@@ -126,11 +129,15 @@ private struct OnboardingPage<Extra: View>: View {
         VStack(spacing: 20) {
             Spacer()
             Image(systemName: icon)
-                .font(.system(size: 56, weight: .semibold))
+                .font(.system(size: 44, weight: .semibold))
                 .foregroundStyle(tint)
                 .symbolEffect(.bounce, value: appeared)
+                .frame(width: 108, height: 108)
+                .background(tint.opacity(0.14), in: .circle)
+                .overlay(Circle().strokeBorder(tint.opacity(0.25), lineWidth: 1))
+                .accessibilityHidden(true)
             Text(title).font(.largeTitle.bold()).multilineTextAlignment(.center)
-            Text(message).font(.body).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            Text(message).font(.body).foregroundStyle(Palette.textMuted).multilineTextAlignment(.center)
             extra.padding(.top, 8)
             Spacer()
         }

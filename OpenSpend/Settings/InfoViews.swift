@@ -41,6 +41,7 @@ struct HelpAndFeedbackView: View {
                 Link(destination: AppLinks.website) { Label("Website", systemImage: "globe") }
             }
         }
+        .appScreen()
         .navigationTitle("Help & Feedback")
     }
 }
@@ -49,9 +50,10 @@ struct FollowUsView: View {
     var body: some View {
         List(AppLinks.social, id: \.name) { s in
             Link(destination: s.url) {
-                HStack { Label(s.name, systemImage: s.icon); Spacer(); Image(systemName: "arrow.up.right").foregroundStyle(.tertiary) }
+                HStack { Label(s.name, systemImage: s.icon); Spacer(); Image(systemName: "arrow.up.right").foregroundStyle(Palette.textMuted) }
             }
         }
+        .appScreen()
         .navigationTitle("Follow Us")
     }
 }
@@ -63,6 +65,7 @@ struct TutorialsView: View {
             NavigationLink { ShortcutsGuideView() } label: { Label("Log expenses with Shortcuts", systemImage: "bolt.fill") }
             NavigationLink { WidgetsGuideView() } label: { Label("Add a home screen widget", systemImage: "square.grid.2x2") }
         }
+        .appScreen()
         .navigationTitle("Tutorials")
     }
 }
@@ -89,6 +92,7 @@ struct SetupGuideView: View {
                 GuideStep(number: 4, text: "Done. Expenses you add appear as new rows, and edits in the sheet sync back.")
             }
         }
+        .appScreen()
         .navigationTitle("Connect a Google Sheet")
     }
 }
@@ -119,6 +123,7 @@ struct ShortcutsGuideView: View {
             }
             .listRowBackground(Color.clear)
         }
+        .appScreen()
         .navigationTitle("Shortcuts")
     }
 }
@@ -143,7 +148,7 @@ struct ShortcutPreview: View {
                 Text(Money.format(4.5, currency: Settings.defaultCurrency)).font(.title3.bold())
             }
             HStack {
-                Text("Cancel").frame(maxWidth: .infinity).padding(10).background(Color(.tertiarySystemFill), in: .capsule)
+                Text("Cancel").frame(maxWidth: .infinity).padding(10).background(Palette.fill, in: .capsule)
                 Text("Add").bold().foregroundStyle(.white).frame(maxWidth: .infinity).padding(10).background(Color.brand, in: .capsule)
             }
             .font(.subheadline)
@@ -169,6 +174,7 @@ struct WidgetsGuideView: View {
                 GuideStep(number: 3, text: "Touch and hold the widget › Edit Widget to choose the account, period and categories.")
             }
         }
+        .appScreen()
         .navigationTitle("Widgets")
     }
 }
@@ -180,21 +186,21 @@ struct WidgetPreviewMock: View {
                 Text("Spent This Month").font(.caption).foregroundStyle(.secondary)
                 Text(Money.format(842.10, currency: Settings.defaultCurrency)).font(.title2.bold()).minimumScaleFactor(0.5)
                 Spacer()
-                Text("Personal").font(.caption2).foregroundStyle(.tertiary)
+                Text("Personal").font(.caption2).foregroundStyle(Palette.textMuted)
             }
             .padding(14)
             .frame(width: 150, height: 150, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 24))
+            .background(Palette.surface, in: .rect(cornerRadius: 24))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Spent Today").font(.caption).foregroundStyle(.secondary)
                 Text(Money.format(23.40, currency: Settings.defaultCurrency)).font(.title2.bold()).minimumScaleFactor(0.5)
                 Spacer()
-                Text("Personal").font(.caption2).foregroundStyle(.tertiary)
+                Text("Personal").font(.caption2).foregroundStyle(Palette.textMuted)
             }
             .padding(14)
             .frame(width: 150, height: 150, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 24))
+            .background(Palette.surface, in: .rect(cornerRadius: 24))
         }
     }
 }
@@ -233,6 +239,7 @@ struct ChangelogView: View {
                 }
             }
         }
+        .appScreen()
         .navigationTitle("What's New")
     }
 }
@@ -262,6 +269,7 @@ struct WhatsNewView: View {
                 Button("Continue") { dismiss() }.buttonStyle(.large).padding(20)
             }
         }
+        .appScreen()
         .navigationTitle(embedded ? "Version \(entry.version)" : "")
     }
 }

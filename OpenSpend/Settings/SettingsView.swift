@@ -105,6 +105,7 @@ struct SettingsView: View {
                 }
                 .listRowBackground(Color.clear)
             }
+            .appScreen()
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() }.bold() } }
@@ -120,14 +121,16 @@ struct SettingsView: View {
                 Image(systemName: "tablecells.badge.ellipsis")
                     .font(.system(size: 40, weight: .semibold))
                     .foregroundStyle(.white)
-                    .frame(width: 76, height: 76)
-                    .background(Color.brand.gradient, in: .rect(cornerRadius: 18))
+                    .frame(width: 80, height: 80)
+                    .background(LinearGradient(colors: [Palette.heroStart, Palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing), in: .rect(cornerRadius: Radius.lg))
+                    .shadow(color: Palette.heroEnd.opacity(0.3), radius: 14, y: 8)
+                    .accessibilityLabel("OpenSpend")
                     .onTapGesture {
                         logoTaps += 1
                         if logoTaps >= 7 { showAdvanced.toggle(); logoTaps = 0; Haptics.success() }
                     }
                 Text("OpenSpend").font(.title3.bold())
-                Text("Expenses that live in your spreadsheet.").font(.footnote).foregroundStyle(.secondary)
+                Text("Expenses that live in your spreadsheet.").font(.footnote).foregroundStyle(Palette.textMuted)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
@@ -172,6 +175,7 @@ struct CurrencyPickerView: View {
             }
         }
         .searchable(text: $search, prompt: "Search currencies")
+        .appScreen()
         .navigationTitle("Currency")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -194,6 +198,7 @@ struct SmartSuggestionsSettingsView: View {
                 Text("Show matching past expenses under the title field. Picking one fills in the amount, category and payment method.")
             }
         }
+        .appScreen()
         .navigationTitle("Smart Suggestions")
     }
 }
@@ -219,6 +224,7 @@ struct ShortcutSettingsView: View {
             }
             .listRowBackground(Color.clear)
         }
+        .appScreen()
         .navigationTitle("Shortcuts")
     }
 }
@@ -241,6 +247,7 @@ struct AdvancedSettingsView: View {
                 Button("Show What's New Again") { lastSeenVersion = "0" }
             }
         }
+        .appScreen()
         .navigationTitle("Advanced")
     }
 }
@@ -264,6 +271,7 @@ struct DebugConsoleView: View {
         }
         .overlay { if entries.isEmpty { ContentUnavailableView("No logs", systemImage: "terminal") } }
         .searchable(text: $search)
+        .appScreen()
         .navigationTitle("Debug Console")
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {

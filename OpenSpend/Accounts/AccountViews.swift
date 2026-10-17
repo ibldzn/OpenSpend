@@ -20,47 +20,52 @@ struct ChooseAccountTypeView: View {
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
                     Image(systemName: "rectangle.stack.badge.plus")
-                        .font(.system(size: 44))
-                        .foregroundStyle(Color.brand)
+                        .font(.system(size: 36, weight: .semibold))
+                        .foregroundStyle(Palette.primary)
+                        .frame(width: 88, height: 88)
+                        .background(Palette.primary.opacity(0.14), in: .circle)
+                        .accessibilityHidden(true)
                     Text(isFirstAccount ? "Create your first account" : "Create new account")
                         .font(.title2.bold())
                     Text("An account keeps its own expenses, categories and payment methods.")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Palette.textMuted)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.vertical, 24)
 
-                typeCard(icon: "tablecells", tint: .green, title: "Google Sheets",
+                typeCard(icon: "tablecells", tint: Palette.success, title: "Google Sheets",
                          detail: "Sync every expense to a spreadsheet in your Google Drive. Edits made in the sheet come back to the app.") {
                     createSheetsAccount()
                 }
-                typeCard(icon: "iphone", tint: .blue, title: "Local",
+                typeCard(icon: "iphone", tint: Palette.primary, title: "Local",
                          detail: "Keep expenses on this device only. No sign-in needed.") {
                     showLocalName = true
                 }
 
                 if showLocalName {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Choose a display name for this account").font(.footnote).foregroundStyle(.secondary)
+                        Text("Account name").font(.footnote.weight(.semibold)).foregroundStyle(Palette.textMuted)
                         TextField("Account name", text: $localName)
                             .focused($nameFocused)
                             .submitLabel(.done)
                             .onSubmit(createLocal)
-                            .padding(14)
-                            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+                            .padding(.horizontal, Space.md)
+                            .frame(minHeight: 48)
+                            .background(Palette.fill.opacity(0.6), in: .rect(cornerRadius: Radius.md))
                         Button("Create Account", action: createLocal)
                             .buttonStyle(.large)
                             .disabled(localName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
+                    .card()
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .onAppear { nameFocused = true }
                 }
             }
             .padding(20)
-            .animation(.snappy, value: showLocalName)
+            .animation(Motion.enter, value: showLocalName)
         }
-        .background(Color(.systemGroupedBackground))
+        .appScreen()
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $sheetsAccount, onDismiss: sheetsSetupDismissed) { a in
             SheetSetupView(account: a).onAppear { lastSheetsAccount = a }
@@ -73,13 +78,12 @@ struct ChooseAccountTypeView: View {
                 IconBadge(systemName: icon, tint: tint, size: 44)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.headline)
-                    Text(detail).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                    Text(detail).font(.subheadline).foregroundStyle(Palette.textMuted).multilineTextAlignment(.leading)
                 }
                 Spacer()
-                Image(systemName: "chevron.right").foregroundStyle(.tertiary).padding(.top, 4)
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.textMuted).padding(.top, 4)
             }
-            .padding(16)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 18))
+            .card()
         }
         .buttonStyle(ScaleOnPressStyle())
         .foregroundStyle(.primary)
@@ -162,6 +166,7 @@ struct ManageAccountsView: View {
                 Button { showAdd = true } label: { Label("Create new account", systemImage: "plus.circle.fill") }
             }
         }
+        .appScreen()
         .navigationTitle("Accounts")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) { EditButton() }
@@ -217,6 +222,7 @@ struct AccountSettingsView: View {
                 TextField("Name", text: $account.name)
                 NavigationLink {
                     ScrollView { IconGridView(icons: IconCatalog.account, selection: $account.iconName).padding() }
+                        .appScreen()
                         .navigationTitle("Icon")
                 } label: {
                     HStack { Text("Icon"); Spacer(); Image(systemName: account.iconName).foregroundStyle(Color.brand) }
@@ -258,6 +264,7 @@ struct AccountSettingsView: View {
                 }
             }
         }
+        .appScreen()
         .navigationTitle("Account Settings")
         .onChange(of: account.name) { try? context.save() }
         .sheet(isPresented: $showSheetSetup) { SheetSetupView(account: account) }
@@ -354,6 +361,7 @@ struct ManageOptionsView: View {
             }
             .onMove(perform: move)
         }
+        .appScreen()
         .navigationTitle(kind == .category ? "Categories" : "Payment Methods")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) { Button { showAdd = true } label: { Image(systemName: "plus") } }
@@ -429,6 +437,7 @@ struct OptionEditorView: View {
                 }
             }
         }
+        .appScreen()
         .navigationTitle(editing == nil ? (kind == .category ? "Add Category" : "Add Payment Method") : (kind == .category ? "Edit Category" : "Edit Payment Method"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

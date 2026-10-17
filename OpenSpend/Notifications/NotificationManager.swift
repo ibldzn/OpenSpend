@@ -103,6 +103,7 @@ struct NotificationSettingsView: View {
             }
             .disabled(manager.permission != .granted)
         }
+        .appScreen()
         .navigationTitle("Notifications")
         .task { await manager.refresh() }
         .onChange(of: reminder) { manager.rescheduleDailyReminder() }

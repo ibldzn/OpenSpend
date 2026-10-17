@@ -190,7 +190,7 @@ struct ExpenseSnippetView: View {
                 }
                 let detail = ([accountName] + fields.categories + fields.payments).joined(separator: " · ")
                 Text(detail).font(.subheadline).foregroundStyle(.secondary)
-                Text(fields.date.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(.tertiary)
+                Text(fields.date.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(Palette.textMuted)
             }
             .padding()
         }

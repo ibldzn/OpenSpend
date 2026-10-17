@@ -9,6 +9,7 @@ struct OpenSpendApp: App {
     init() {
         if SharedModelContainer.isUITesting { AppGroup.defaults.removePersistentDomain(forName: AppGroup.id) }
         Settings.register()
+        DemoData.seedIfRequested()
     }
 
     var body: some Scene {

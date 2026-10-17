@@ -1,20 +1,99 @@
 import SafariServices
 import SwiftUI
 
+// MARK: Backdrop & surfaces
+
+/// Soft layered backdrop used behind every screen. Decorative only.
+struct AppBackground: View {
+    var body: some View {
+        ZStack {
+            Palette.background
+            Circle()
+                .fill(Palette.primary.opacity(0.16))
+                .frame(width: 420, height: 420)
+                .blur(radius: 90)
+                .offset(x: -140, y: -320)
+            Circle()
+                .fill(Palette.cta.opacity(0.12))
+                .frame(width: 360, height: 360)
+                .blur(radius: 90)
+                .offset(x: 170, y: -180)
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
+    }
+}
+
+extension View {
+    /// Gives a List/Form/ScrollView screen the shared backdrop.
+    func appScreen() -> some View {
+        scrollContentBackground(.hidden)
+            .background(AppBackground())
+    }
+
+    /// Frosted card surface with a hairline border.
+    func card(padding: CGFloat = Space.lg, radius: CGFloat = Radius.lg) -> some View {
+        self.padding(padding)
+            .background(Palette.surface.opacity(0.92), in: .rect(cornerRadius: radius))
+            .background(.ultraThinMaterial, in: .rect(cornerRadius: radius))
+            .overlay(RoundedRectangle(cornerRadius: radius).strokeBorder(Palette.border.opacity(0.7), lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.05), radius: 12, y: 4)
+    }
+
+    /// Fades and lifts content in, staggered by `index`. Skipped under Reduce Motion.
+    func staggeredAppear(_ index: Int) -> some View {
+        modifier(StaggeredAppear(index: index))
+    }
+}
+
+private struct StaggeredAppear: ViewModifier {
+    let index: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shown || reduceMotion ? 1 : 0)
+            .offset(y: shown || reduceMotion ? 0 : 12)
+            .onAppear {
+                guard !reduceMotion, !shown else { return }
+                withAnimation(Motion.enter.delay(Double(min(index, 8)) * 0.05)) { shown = true }
+            }
+    }
+}
+
+struct SectionHeader: View {
+    var title: String
+    var trailing: String?
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(title).font(.headline)
+            Spacer()
+            if let trailing {
+                Text(trailing).font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(Palette.textMuted)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
 // MARK: Buttons
 
 struct LargeButtonStyle: ButtonStyle {
     var prominent = true
+    @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .foregroundStyle(prominent ? Color.white : Color.brand)
-            .background(prominent ? Color.brand : Color.brand.opacity(0.12), in: .rect(cornerRadius: 16))
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.spring(duration: 0.2), value: configuration.isPressed)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .foregroundStyle(prominent ? Color.white : Palette.primary)
+            .background(prominent ? Palette.cta : Palette.primary.opacity(0.12), in: .rect(cornerRadius: Radius.md))
+            .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .animation(Motion.press, value: configuration.isPressed)
     }
 }
 
@@ -23,11 +102,33 @@ extension ButtonStyle where Self == LargeButtonStyle {
     static var largeSecondary: LargeButtonStyle { LargeButtonStyle(prominent: false) }
 }
 
+/// Press feedback without changing layout bounds.
 struct ScaleOnPressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .animation(.spring(duration: 0.2), value: configuration.isPressed)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(Motion.press, value: configuration.isPressed)
+    }
+}
+
+/// 44pt circular glass icon button for top bars.
+struct CircleIconButton: View {
+    var systemName: String
+    var label: String
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.primary)
+                .frame(width: 44, height: 44)
+                .background(.regularMaterial, in: .circle)
+                .overlay(Circle().strokeBorder(Palette.border.opacity(0.6), lineWidth: 0.5))
+        }
+        .buttonStyle(ScaleOnPressStyle())
+        .accessibilityLabel(label)
     }
 }
 
@@ -35,15 +136,16 @@ struct ScaleOnPressStyle: ButtonStyle {
 
 struct IconBadge: View {
     var systemName: String
-    var tint: Color = .brand
+    var tint: Color = Palette.primary
     var size: CGFloat = 36
 
     var body: some View {
         Image(systemName: systemName)
-            .font(.system(size: size * 0.45, weight: .semibold))
+            .font(.system(size: size * 0.44, weight: .semibold))
             .foregroundStyle(tint)
             .frame(width: size, height: size)
-            .background(tint.opacity(0.14), in: .rect(cornerRadius: size * 0.3))
+            .background(tint.opacity(0.15), in: .rect(cornerRadius: size * 0.32))
+            .accessibilityHidden(true)
     }
 }
 
@@ -56,8 +158,9 @@ struct SettingsIcon: View {
         Image(systemName: systemName)
             .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(.white)
-            .frame(width: 29, height: 29)
-            .background(color.gradient, in: .rect(cornerRadius: 7))
+            .frame(width: 30, height: 30)
+            .background(color.gradient, in: .rect(cornerRadius: 8))
+            .accessibilityHidden(true)
     }
 }
 
@@ -66,14 +169,25 @@ struct SettingsRow<Trailing: View>: View {
     var color: Color
     var title: String
     @ViewBuilder var trailing: Trailing
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Space.md) {
             SettingsIcon(systemName: icon, color: color)
-            Text(title)
-            Spacer()
-            trailing.foregroundStyle(.secondary)
+            // Trailing value drops under the title at accessibility sizes so words don't hyphenate.
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                    trailing.foregroundStyle(Palette.textMuted)
+                }
+                Spacer(minLength: 0)
+            } else {
+                Text(title)
+                Spacer()
+                trailing.foregroundStyle(Palette.textMuted)
+            }
         }
+        .frame(minHeight: 36)
     }
 }
 
@@ -88,26 +202,28 @@ struct IconGridView: View {
     @Binding var selection: String
 
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 10) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Space.sm), count: 6), spacing: Space.sm) {
             ForEach(icons, id: \.self) { icon in
+                let selected = selection == icon
                 Button {
-                    selection = icon
+                    withAnimation(Motion.select) { selection = icon }
                     Haptics.tap()
                 } label: {
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .medium))
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                        .foregroundStyle(selection == icon ? Color.white : Color.primary)
-                        .background(selection == icon ? Color.brand : Color(.tertiarySystemFill), in: .rect(cornerRadius: 12))
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .foregroundStyle(selected ? Color.white : Color.primary)
+                        .background(selected ? Palette.primary : Palette.fill, in: .rect(cornerRadius: Radius.sm))
                 }
                 .buttonStyle(ScaleOnPressStyle())
-                .accessibilityLabel(icon)
+                .accessibilityLabel(icon.replacingOccurrences(of: ".", with: " "))
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
     }
 }
 
-// MARK: Chips
+// MARK: Chips & pills
 
 struct Chip: View {
     var title: String
@@ -119,23 +235,66 @@ struct Chip: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                if let icon { Image(systemName: icon).font(.footnote) }
-                Text(title).font(.subheadline.weight(.medium))
-                if suggested { Image(systemName: "sparkles").font(.caption2) }
+                if let icon { Image(systemName: icon).font(.footnote.weight(.semibold)) }
+                Text(title).font(.subheadline.weight(.medium)).lineLimit(1)
+                if suggested {
+                    Image(systemName: "sparkles").font(.caption2.weight(.bold))
+                        .accessibilityLabel("Suggested")
+                }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 14)
+            .frame(minHeight: 40)
             .foregroundStyle(selected ? Color.white : Color.primary)
-            .background(selected ? Color.brand : Color(.secondarySystemGroupedBackground), in: .capsule)
-            .overlay(Capsule().strokeBorder(selected ? Color.clear : Color(.separator), lineWidth: 0.5))
+            .background(selected ? Palette.primary : Palette.surface, in: .capsule)
+            .overlay(Capsule().strokeBorder(selected ? Color.clear : Palette.border, lineWidth: 1))
+            .contentShape(.capsule)
         }
         .buttonStyle(ScaleOnPressStyle())
+        .animation(Motion.select, value: selected)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+/// Single-choice segmented pills with a sliding selection.
+struct PillPicker<Value: Hashable>: View {
+    var options: [Value]
+    @Binding var selection: Value
+    var title: (Value) -> String
+    @Namespace private var ns
+
+    var body: some View {
+        HStack(spacing: Space.xs) {
+            ForEach(options, id: \.self) { option in
+                let on = option == selection
+                Button {
+                    withAnimation(Motion.select) { selection = option }
+                    Haptics.tap()
+                } label: {
+                    Text(title(option))
+                        .font(.subheadline.weight(on ? .semibold : .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .foregroundStyle(on ? Color.white : Palette.textMuted)
+                        .background {
+                            if on { Capsule().fill(Palette.primary).matchedGeometryEffect(id: "pill", in: ns) }
+                        }
+                        .contentShape(.capsule)
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(on ? .isSelected : [])
+            }
+        }
+        .padding(Space.xs)
+        .background(Palette.fill.opacity(0.8), in: .capsule)
+        // Compact segmented control: capped like system tab bars so labels never truncate.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 }
 
 /// Simple wrapping layout for chips.
 struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
+    var spacing: CGFloat = Space.sm
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let rows = arrange(proposal: proposal, subviews: subviews)
@@ -187,24 +346,27 @@ struct SyncToast: View {
             case .syncing(let name):
                 label(Text("Syncing \(name)…"), icon: AnyView(ProgressView().controlSize(.small)))
             case .success(let m):
-                label(Text(m), icon: AnyView(Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)))
+                label(Text(m), icon: AnyView(Image(systemName: "checkmark.circle.fill").foregroundStyle(Palette.success)))
             case .failed(let m):
-                label(Text(m), icon: AnyView(Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)))
+                label(Text(m), icon: AnyView(Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Palette.warning)))
             }
         }
-        .animation(.spring, value: status)
+        .animation(Motion.enter, value: status)
     }
 
     private func label(_ text: Text, icon: AnyView) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Space.sm) {
             icon
-            text.font(.footnote.weight(.medium)).lineLimit(2)
+            text.font(.footnote.weight(.semibold)).lineLimit(2)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, Space.lg)
+        .padding(.vertical, Space.md)
         .background(.regularMaterial, in: .capsule)
-        .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
+        .overlay(Capsule().strokeBorder(Palette.border.opacity(0.6), lineWidth: 0.5))
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
         .transition(.move(edge: .top).combined(with: .opacity))
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -230,7 +392,7 @@ private struct SyncToastModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .overlay(alignment: .top) {
-                SyncToast(status: sync.status).padding(.top, 4)
+                SyncToast(status: sync.status).padding(.top, Space.xs)
             }
             .task(id: sync.status) {
                 let delay: Double
@@ -264,6 +426,18 @@ struct EmptyStateView: View {
     var message: String
 
     var body: some View {
-        ContentUnavailableView(title, systemImage: icon, description: Text(message))
+        VStack(spacing: Space.md) {
+            Image(systemName: icon)
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundStyle(Palette.primary)
+                .frame(width: 64, height: 64)
+                .background(Palette.primary.opacity(0.12), in: .circle)
+                .accessibilityHidden(true)
+            Text(title).font(.headline)
+            Text(message).font(.subheadline).foregroundStyle(Palette.textMuted).multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Space.xl)
+        .accessibilityElement(children: .combine)
     }
 }
