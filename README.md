@@ -42,3 +42,9 @@ Add an app icon to `OpenSpend/Assets.xcassets/AppIcon.appiconset` (1024×1024).
 ## Tests
 
 `OpenSpendTests` covers amount parsing and the sheet row codec. Run them with ⌘U.
+
+## Download the IPA
+
+Every push to `main` builds an unsigned `OpenSpend.ipa` and publishes it as the `latest` pre-release under GitHub Releases. Pushing a `v*` tag (for example `git tag v1.0.0 && git push --tags`) creates a versioned release.
+
+The IPA is unsigned, so install it with a sideloading tool that signs it for you: AltStore, Sideloadly or TrollStore. When the tool signs it without the app group, the widget can't see the app's data, but the app itself works normally.
