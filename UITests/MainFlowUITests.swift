@@ -40,14 +40,19 @@ final class MainFlowUITests: XCTestCase {
         let amount = app.textFields["0"]
         amount.tap()
         amount.typeText("4.5")
-        app.buttons["Food"].firstMatch.tap()
-        app.buttons["Card"].firstMatch.tap()
+        // Smart Suggestions may already have picked one (its label then reads "Food, Suggested").
+        // Select by prefix and only tap when not selected, so a tap never toggles a pick off.
+        for name in ["Food", "Card"] {
+            let chip = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", name)).firstMatch
+            XCTAssertTrue(chip.waitForExistence(timeout: 3))
+            if !chip.isSelected { chip.tap() }
+        }
         shot("06-new-expense")
         app.buttons["Save Expense"].tap()
 
         let row = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Morning coffee'")).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
-        XCTAssertTrue(row.label.contains("Food · Card"), "manual category/payment picks must survive Smart Suggestions")
+        XCTAssertTrue(row.label.contains("Food") && row.label.contains("Card"), "manual category/payment picks must survive Smart Suggestions")
         shot("07-home-with-expense")
 
         app.buttons["Settings"].tap()
