@@ -189,7 +189,7 @@ struct ExpenseSnippetView: View {
                     Text(Money.format(fields.amount, currency: fields.currency)).font(.title2.bold())
                 }
                 let detail = ([accountName] + fields.categories + fields.payments).joined(separator: " · ")
-                Text(detail).font(.subheadline).foregroundStyle(Palette.textMuted)
+                Text(detail).font(.footnote).foregroundStyle(Palette.textMuted)
                 Text(fields.date.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(Palette.textMuted)
             }
             .foregroundStyle(Palette.primary)
