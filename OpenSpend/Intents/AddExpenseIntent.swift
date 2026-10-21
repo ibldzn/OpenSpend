@@ -189,10 +189,15 @@ struct ExpenseSnippetView: View {
                     Text(Money.format(fields.amount, currency: fields.currency)).font(.title2.bold())
                 }
                 let detail = ([accountName] + fields.categories + fields.payments).joined(separator: " · ")
-                Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                Text(detail).font(.subheadline).foregroundStyle(Palette.textMuted)
                 Text(fields.date.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(Palette.textMuted)
             }
+            .foregroundStyle(Palette.primary)
             .padding()
+            // The snippet renders in the system's appearance, not the app's forced dark,
+            // so it paints its own dark surface to keep the light text readable.
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Palette.surface)
         }
     }
 }
