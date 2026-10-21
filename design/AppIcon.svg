@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#0A0A0A"/>
+  <g transform="translate(-32 12)">
+    <!-- open ring: an "O" with a gap at the top-right, where the spend leaves -->
+    <path d="M 601 268 A 260 260 0 1 0 772 512" fill="none" stroke="#FFFFFF" stroke-width="96" stroke-linecap="round"/>
+    <!-- coin leaving through the gap -->
+    <circle cx="831" cy="288" r="56" fill="#FFFFFF"/>
+  </g>
+</svg>
