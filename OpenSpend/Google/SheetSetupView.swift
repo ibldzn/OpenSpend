@@ -448,6 +448,7 @@ struct ManageConnectionsView: View {
                     }
                     .swipeActions {
                         Button("Remove", role: .destructive) { toRemove = c }
+                            .tint(Palette.danger)
                     }
                 }
                 Button { signIn() } label: { Label("Add Google Account", systemImage: "plus.circle.fill") }
@@ -484,7 +485,8 @@ struct ManageConnectionsView: View {
         }
         .appScreen()
         .navigationTitle("Google Accounts")
-        .confirmationDialog("Remove \(toRemove?.email ?? "")?", isPresented: Binding(get: { toRemove != nil }, set: { if !$0 { toRemove = nil } }), titleVisibility: .visible) {
+        .alert("Remove \(toRemove?.email ?? "")?", isPresented: Binding(get: { toRemove != nil }, set: { if !$0 { toRemove = nil } })) {
+            Button("Cancel", role: .cancel) {}
             Button("Sign Out & Remove", role: .destructive) {
                 if let c = toRemove {
                     Task { await GoogleAuth.shared.signOut(email: c.email) }

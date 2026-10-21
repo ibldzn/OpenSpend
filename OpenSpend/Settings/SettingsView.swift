@@ -189,11 +189,13 @@ struct SmartSuggestionsSettingsView: View {
         Form {
             Section {
                 Toggle("Suggest Category & Payment", isOn: $smart)
+                    .tint(Palette.toggleOn)
             } footer: {
                 Text("While you type a title, OpenSpend picks a likely category and payment method. It learns from your past expenses and runs fully on device.")
             }
             Section {
                 Toggle("Title Suggestions", isOn: $titles)
+                    .tint(Palette.toggleOn)
             } footer: {
                 Text("Show matching past expenses under the title field. Picking one fills in the amount, category and payment method.")
             }
@@ -211,11 +213,13 @@ struct ShortcutSettingsView: View {
         Form {
             Section {
                 Toggle("Confirm Expense Details", isOn: $confirm)
+                    .tint(Palette.toggleOn)
             } footer: {
                 Text("Ask for confirmation before the Add Expense shortcut saves. Turn off to save immediately.")
             }
             Section {
                 Toggle("Show Go Back Option", isOn: $goBack)
+                    .tint(Palette.toggleOn)
             } footer: {
                 Text("Adds a Go Back choice when the shortcut asks for the account, category or payment method.")
             }

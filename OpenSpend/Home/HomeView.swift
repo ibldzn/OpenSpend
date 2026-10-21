@@ -125,6 +125,7 @@ struct AccountScopedHomeView: View {
                             .listRowBackground(Palette.surface)
                             .swipeActions {
                                 Button(role: .destructive) { expenseToDelete = e } label: { Label("Delete", systemImage: "trash") }
+                                    .tint(Palette.danger)
                             }
                         }
                     } header: {
@@ -156,10 +157,11 @@ struct AccountScopedHomeView: View {
             } message: {
                 Text("This account syncs with Google Sheets. Pick a spreadsheet before adding expenses.")
             }
-            .confirmationDialog("Delete this expense?", isPresented: Binding(get: { expenseToDelete != nil }, set: { if !$0 { expenseToDelete = nil } }), titleVisibility: .visible) {
+            .alert("Delete this expense?", isPresented: Binding(get: { expenseToDelete != nil }, set: { if !$0 { expenseToDelete = nil } })) {
                 Button("Delete", role: .destructive) {
                     if let e = expenseToDelete { ExpenseStore.delete(e, in: account, context: context) }
                 }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text(account.type == .sheets ? "The row will also be removed from your Google Sheet." : "This cannot be undone.")
             }

@@ -365,7 +365,7 @@ extension View {
     }
 
     func deleteConfirmation(_ title: String, message: String, isPresented: Binding<Bool>, action: @escaping () -> Void) -> some View {
-        confirmationDialog(title, isPresented: isPresented, titleVisibility: .visible) {
+        alert(title, isPresented: isPresented) {
             Button("Delete", role: .destructive, action: action)
             Button("Cancel", role: .cancel) {}
         } message: {

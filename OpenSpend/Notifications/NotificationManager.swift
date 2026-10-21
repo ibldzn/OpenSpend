@@ -94,10 +94,12 @@ struct NotificationSettingsView: View {
 
             Section {
                 Toggle("Daily Reminder", isOn: $reminder)
+                    .tint(Palette.toggleOn)
                 if reminder {
                     DatePicker("Time", selection: reminderTime, displayedComponents: .hourAndMinute)
                 }
                 Toggle("Sync Alerts", isOn: $syncAlerts)
+                    .tint(Palette.toggleOn)
             } footer: {
                 Text("Sync alerts appear when background sync finds new expenses added in Google Sheets.")
             }

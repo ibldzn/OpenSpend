@@ -156,6 +156,7 @@ struct ManageAccountsView: View {
                         Button(role: .destructive) {
                             if accounts.count <= 1 { showCannotDelete = true } else { accountToDelete = a }
                         } label: { Label("Delete", systemImage: "trash") }
+                        .tint(Palette.danger)
                     }
                 }
                 .onMove(perform: move)
@@ -181,8 +182,9 @@ struct ManageAccountsView: View {
         } message: {
             Text("You need at least one account. Create another account before deleting this one.")
         }
-        .confirmationDialog("Delete \(accountToDelete?.name ?? "account")?", isPresented: Binding(get: { accountToDelete != nil }, set: { if !$0 { accountToDelete = nil } }), titleVisibility: .visible) {
+        .alert("Delete \(accountToDelete?.name ?? "account")?", isPresented: Binding(get: { accountToDelete != nil }, set: { if !$0 { accountToDelete = nil } })) {
             Button("Delete Account", role: .destructive) { if let a = accountToDelete { delete(a) } }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text(accountToDelete?.type == .sheets
                  ? "Removes the account and its expenses, categories and payment methods from this app. Your Google Sheet is not changed."
@@ -358,6 +360,7 @@ struct ManageOptionsView: View {
                 }
                 .swipeActions {
                     Button(role: .destructive) { toDelete = item } label: { Label("Delete", systemImage: "trash") }
+                        .tint(Palette.danger)
                 }
             }
             .onMove(perform: move)
@@ -370,8 +373,9 @@ struct ManageOptionsView: View {
         }
         .sheet(isPresented: $showAdd) { NavigationStack { OptionEditorView(kind: kind, account: account, editing: nil) } }
         .sheet(item: $editing) { item in NavigationStack { OptionEditorView(kind: kind, account: account, editing: item) } }
-        .confirmationDialog("Delete \(toDelete?.name ?? "")?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } }), titleVisibility: .visible) {
+        .alert("Delete \(toDelete?.name ?? "")?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } })) {
             Button("Delete \(noun)", role: .destructive) { if let t = toDelete { delete(t) } }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text("Existing expenses keep this name. It just won't be offered as an option anymore.")
         }

@@ -28,6 +28,8 @@ enum Palette {
     static let danger = hex(0xF26D6D)
     static let warning = textMuted
     static let success = primary
+    /// Switch track when on: grey so the white knob stays visible.
+    static let toggleOn = hex(0x7A7A7A)
 
     /// Greyscale steps for ranked series (charts, breakdown bars), brightest first.
     static let ramp: [Color] = [hex(0xFAFAFA), hex(0xB4B4B4), hex(0x7A7A7A), hex(0x4A4A4A), hex(0x333333)]
