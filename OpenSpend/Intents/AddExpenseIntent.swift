@@ -194,10 +194,8 @@ struct ExpenseSnippetView: View {
             }
             .foregroundStyle(Palette.primary)
             .padding()
-            // The snippet renders in the system's appearance, not the app's forced dark,
-            // so it paints its own dark surface to keep the light text readable.
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Palette.surface)
+            // The snippet sits on the system's glass, which uses light text, but the snippet's
+            // own environment resolves .primary to black; use the light tokens explicitly.
         }
     }
 }

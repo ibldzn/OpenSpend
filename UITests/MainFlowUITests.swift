@@ -72,8 +72,9 @@ final class MainFlowUITests: XCTestCase {
         shot("10-home")
         // Coordinate taps prove the pill really receives touches, then assert the selection moved.
         app.buttons["Week"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        sleep(1)
-        XCTAssertTrue(app.buttons["Week"].isSelected, "Week pill should be selected after a tap")
+        // Poll instead of a fixed sleep: on slow CI runners the trait can lag the tap.
+        let weekSelected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isSelected == true"), object: app.buttons["Week"])
+        XCTAssertEqual(XCTWaiter.wait(for: [weekSelected], timeout: 5), .completed, "Week pill should be selected after a tap")
         shot("11-home-week")
         app.buttons["Month"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
 
